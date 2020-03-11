@@ -15,9 +15,15 @@ class Project(object):
         # src_path = path.join(root, "gamma")
         # src = sources(src_path, "*.go")
         
+        cli = utils.Path("cli")
+        
         subdirs = {path.join(root, elem)
             for elem in {
-                "cli", "command", "errors", "path",
+                cli,
+                cli.join("stream"),
+                "command",
+                "errors",
+                "path",
             }
         }
         
@@ -31,8 +37,6 @@ class Project(object):
         )
 
         main = "toolbox"
-        
-        
         
         ninja = root.join("build.ninja")
         

@@ -15,7 +15,7 @@ func (sl Slice) String() (out string) {
     if s := sl.slice; s == nil {
         out = ""
     } else {
-        out = fmt.Sprintf("%s\n", sl.slice)
+        out = fmt.Sprintf("%s\n", s)
     }
     
     return 

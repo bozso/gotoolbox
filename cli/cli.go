@@ -59,7 +59,7 @@ func (c Cli) HasSubcommands() bool {
 
 func (c Cli) Usage() {
     fmt.Printf("Program: %s. Description: %s\n",
-        Color(c.Name(), Bold), c.desc)
+        Bold.Wrap(c.Name()), c.desc)
     c.PrintDefaults()
     
     if c.HasSubcommands() {
