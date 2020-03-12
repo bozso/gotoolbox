@@ -1,7 +1,9 @@
 package path
 
 import (
+    "os"
     "fmt"
+    "bufio"
     "io/ioutil"
 )
 
@@ -38,3 +40,17 @@ func (f *File) Set(s string) (err error) {
     return
 }
 
+type Scanner struct {
+    *bufio.Scanner
+    *os.File
+}
+
+func (f File) Scanner() (s Scanner, err error) {
+    s.File, err = f.Open()
+    if err != nil {
+        return
+    }
+    
+    s.Scanner = bufio.NewScanner(s.File)
+    return
+}

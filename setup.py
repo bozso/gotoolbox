@@ -21,6 +21,7 @@ class Project(object):
             for elem in {
                 cli,
                 cli.join("stream"),
+                "splitted",
                 "command",
                 "errors",
                 "path",

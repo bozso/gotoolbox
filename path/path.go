@@ -3,7 +3,9 @@ package path
 import (
     "fmt"
     "os"
+    "strings"
     "path/filepath"
+    pa "path"
 
     "github.com/bozso/gotoolbox/errors"
 )
@@ -60,6 +62,17 @@ func (p Path) Base() (pp Path) {
 func (p Path) Len() int {
     return len(p.String())
 }
+
+func (p Path) Ext() string {
+    return pa.Ext(p.String())
+}
+
+func (p Path) NoExt() (pp Path) {
+    s := p.String()
+    
+    return Path{strings.TrimSuffix(s, p.Ext())}
+}
+
 
 func (p Path) Stat() (fi os.FileInfo, err error) {
     fi, err = os.Lstat(p.String())
