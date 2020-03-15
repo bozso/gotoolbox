@@ -16,12 +16,14 @@ type InFile struct {
 }
 
 func (in *InFile) Set(s string) (err error) {
-    p, err := path.New(s).ToFile()
+    f := path.New(s).ToFile()
+    vf, err := f.ToValid()
+    
     if err != nil {
         return
     }
     
-    file, err := p.Open()
+    file, err := vf.Open()
     if err != nil {
         return
     }

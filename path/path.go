@@ -73,6 +73,16 @@ func (p Path) NoExt() (pp Path) {
     return Path{strings.TrimSuffix(s, p.Ext())}
 }
 
+func (p Path) Create() (of *os.File, err error) {
+    of, err = os.Create(p.String())
+    
+    if err != nil {
+        err = p.Fail(Create, err)
+    }
+    
+    return 
+}
+
 func (p Path) Exist() (b bool, err error) {
     b, s := false, p.s
     _, err = os.Stat(s)
@@ -92,7 +102,11 @@ func (p Path) Exist() (b bool, err error) {
     return
 }
 
-func (p Path) ToValid() (vp ValidPath, err error) {
+func (p Path) Fail(op PathOperation, err error) error {
+    return PathError{p.s, op, err}
+}
+
+func (p Path) ToValid() (vp validPath, err error) {
     exist, err := p.Exist()
     if err != nil {
         return
@@ -106,62 +120,55 @@ func (p Path) ToValid() (vp ValidPath, err error) {
     return
 }
 
-func (p Path) Fail(op PathOperation, err error) error {
-    return PathError{p.s, op, err}
-}
-
-type ValidPath struct {
+type validPath struct {
     Path
 }
 
-func (p ValidPath) Stat() (fi os.FileInfo, err error) {
-    fi, err = os.Lstat(p.String())
+func (vp validPath) Stat() (fi os.FileInfo, err error) {
+    fi, err = os.Lstat(vp.String())
     
     if err != nil {
-        err = p.Fail(Stat, err)
+        err = vp.Fail(Stat, err)
     }
     
     return
 }
 
-func (vp ValidPath) IsDir() (b bool, err error) {
-    
-}
-
-func (p ValidPath) Open() (of *os.File, err error) {
-    of, err = os.Open(p.String())
-    
-    if err != nil {
-        err = p.Fail(Open, err)
-    }
-    
-    return 
-}
-
-func (p ValidPath) Create() (of *os.File, err error) {
-    of, err = os.Create(p.String())
-    
-    if err != nil {
-        err = p.Fail(Create, err)
-    }
-    
-    return 
-}
-
-
-
-func (p ValidPath) Move(dir Dir) (dst Path, err error) {
-    dst, err = dir.Join(p.Base().String()).Abs()
+func (vp validPath) IsDir() (b bool, err error) {
+    b = false
+    fi, err := vp.Stat()
     if err != nil {
         return
     }
     
-    s1, s2 := p.String(), dst.String()
+    b = fi.IsDir()
+    return
+}
+
+func (vp validPath) Open() (of *os.File, err error) {
+    of, err = os.Open(vp.String())
+    
+    if err != nil {
+        err = vp.Fail(Open, err)
+    }
+    
+    return 
+}
+
+func (vp validPath) Move(dir Dir) (dst validPath, err error) {
+    _dst, err := dir.Join(vp.Base().String()).Abs()
+    if err != nil {
+        return
+    }
+    
+    s1, s2 := vp.String(), dst.String()
     
     if err = os.Rename(s1, s2); err != nil {
         errors.WrapFmt(err, "failed to move '%s' to '%s'", s1, s2)
         return
     }
+    
+    dst, err = _dst.ToValid()
     
     return
 }

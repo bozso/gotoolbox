@@ -6,18 +6,23 @@ import (
 )
 
 type Dir struct {
-    Path
+    validPath
 }
 
 func (p Path) ToDir() (d Dir, err error) {
-    fi, err := p.Stat()
-    
-    if !fi.IsDir() {
-        // error
-        err = fmt.Errorf("path '%s' is not a directory, but a file", p)
+    d.validPath, err = p.ToValid()
+    if err != nil {
+        return
     }
     
-    d.Path = p
+    isDir, err := d.IsDir()
+    if err != nil {
+        return
+    }
+    
+    if !isDir {
+        err = fmt.Errorf("path '%s' is not a directory, but a file", p)
+    }
     
     return
 }

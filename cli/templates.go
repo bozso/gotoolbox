@@ -36,7 +36,7 @@ func (t Templates) Run() (err error) {
     tpl := template.New(t.name)
     
     for _, p := range paths {
-        f, Err := p.ToFile()
+        f, Err := p.ToFile().ToValid()
         if err != nil {
             err = Err
             return

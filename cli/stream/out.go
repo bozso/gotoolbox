@@ -16,12 +16,9 @@ type OutFile struct {
 }
 
 func (o *OutFile) Set(s string) (err error) {
-    p, err := path.New(s).ToFile()
-    if err != nil {
-        return
-    }
+    f := path.New(s).ToFile()
     
-    file, err := p.Open()
+    file, err := f.Create()
     if err != nil {
         return
     }
