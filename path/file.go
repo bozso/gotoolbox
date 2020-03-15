@@ -12,19 +12,30 @@ type File struct {
 }
 
 func (p Path) ToFile() (f File, err error) {
-    fi, err := p.Stat()
+    f.Path = p
+    return
+}
+
+type ValidFile {
+    File
+}
+
+func (f File) ToValid() (vf ValidFile, err error) {
+    vf.File.Path, err = f.Path.ToValid()
+    if err != nil {
+        return
+    }
+
+    fi, err := vf.Stat()
     
     if fi.IsDir() {
         err = fmt.Errorf("path '%s' is not a file, but a directory", p)
         return
     }
     
-    f.Path = p
-    
-    return
 }
 
-func (f File) ReadAll() (b []byte, err error) {
+func (f ValidFile) ReadAll() (b []byte, err error) {
     file, err := f.Open()
     if err != nil {
         return

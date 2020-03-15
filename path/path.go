@@ -73,28 +73,6 @@ func (p Path) NoExt() (pp Path) {
     return Path{strings.TrimSuffix(s, p.Ext())}
 }
 
-
-func (p Path) Stat() (fi os.FileInfo, err error) {
-    fi, err = os.Lstat(p.String())
-    
-    if err != nil {
-        err = p.Fail(Stat, err)
-    }
-    
-    return
-}
-
-func (p Path) Open() (of *os.File, err error) {
-    of, err = os.Open(p.String())
-    
-    if err != nil {
-        err = p.Fail(Open, err)
-    }
-    
-    return 
-}
-
-
 func (p Path) Exist() (b bool, err error) {
     b, s := false, p.s
     _, err = os.Stat(s)
@@ -114,7 +92,65 @@ func (p Path) Exist() (b bool, err error) {
     return
 }
 
-func (p Path) Move(dir Path) (dst Path, err error) {
+func (p Path) ToValid() (vp ValidPath, err error) {
+    exist, err := p.Exist()
+    if err != nil {
+        return
+    }
+    
+    if !exist {
+        //error
+    }
+    
+    vp.Path = p
+    return
+}
+
+func (p Path) Fail(op PathOperation, err error) error {
+    return PathError{p.s, op, err}
+}
+
+type ValidPath struct {
+    Path
+}
+
+func (p ValidPath) Stat() (fi os.FileInfo, err error) {
+    fi, err = os.Lstat(p.String())
+    
+    if err != nil {
+        err = p.Fail(Stat, err)
+    }
+    
+    return
+}
+
+func (vp ValidPath) IsDir() (b bool, err error) {
+    
+}
+
+func (p ValidPath) Open() (of *os.File, err error) {
+    of, err = os.Open(p.String())
+    
+    if err != nil {
+        err = p.Fail(Open, err)
+    }
+    
+    return 
+}
+
+func (p ValidPath) Create() (of *os.File, err error) {
+    of, err = os.Create(p.String())
+    
+    if err != nil {
+        err = p.Fail(Create, err)
+    }
+    
+    return 
+}
+
+
+
+func (p ValidPath) Move(dir Dir) (dst Path, err error) {
     dst, err = dir.Join(p.Base().String()).Abs()
     if err != nil {
         return
@@ -130,15 +166,12 @@ func (p Path) Move(dir Path) (dst Path, err error) {
     return
 }
 
-func (p Path) Fail(op PathOperation, err error) error {
-    return PathError{p.s, op, err}
-}
-
 type PathOperation int
 
 const (
     Stat PathOperation = iota
     Open
+    Create
     CheckIfExist
     CreateAbsPath
 )
@@ -149,6 +182,8 @@ func (op PathOperation) String() (s string) {
         s = "retreive information"
     case Open:
         s = "open"
+    case Create:
+        s = "create"
     case CheckIfExist:
         s = "check if exists"
     case CreateAbsPath:
@@ -173,4 +208,3 @@ func (e PathError) Error() string {
 func (e PathError) Unwrap() error {
     return e.err
 }
-
