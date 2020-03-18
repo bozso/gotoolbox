@@ -15,8 +15,15 @@ type OutFile struct {
     io.WriteCloser
 }
 
+func DefaultOut() OutFile {
+    return OutFile{
+        stream: stream{name: stdoutName},
+        WriteCloser: os.Stdout,
+    }
+}
+
 func (o *OutFile) Set(s string) (err error) {
-    f := path.New(s).ToFile()
+    f := path.NewFile(s)
     
     file, err := f.Create()
     if err != nil {
@@ -27,7 +34,7 @@ func (o *OutFile) Set(s string) (err error) {
     return
 }
 
-func (o Out) BufWriter() (w *bufio.Writer) {
+func (o OutFile) BufWriter() (w *bufio.Writer) {
     w = bufio.NewWriter(o.WriteCloser)
     return
 }
@@ -37,6 +44,8 @@ type Out struct {
 }
 
 func (o *Out) Set(s string) (err error) {
+    println("asd")
+    println(s)
     if l := len(s); l == 0 {
         o.name, o.WriteCloser = stdoutName, os.Stdout
         return

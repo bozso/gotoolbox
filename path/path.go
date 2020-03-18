@@ -1,13 +1,10 @@
 package path
 
 import (
-    "fmt"
     "os"
     "strings"
     "path/filepath"
     pa "path"
-
-    "github.com/bozso/gotoolbox/errors"
 )
 
 type Pather interface {
@@ -36,6 +33,27 @@ func (p Path) Join(args ...string) Path {
     return Joined(append(ss, args...)...)
 }
 
+func (p Path) Glob() (v []Valid, err error) {
+    paths, err := filepath.Glob(p.GetPath())
+    if err != nil {
+        return
+    }
+    
+    v = make([]Valid, 0)
+    
+    for _, p := range paths {
+        pp, Err := New(p).ToValid()
+        if Err != nil {
+            err = Err
+            return
+        }
+        
+        v = append(v, pp)
+    }
+    
+    return
+}
+
 func (p Path) GetPath() string {
     return p.s
 }
@@ -48,7 +66,7 @@ func (p Path) Abs() (pp Path, err error) {
     pp.s, err = filepath.Abs(p.String())
     
     if err != nil {
-        err = p.Fail(CreateAbsPath, err)
+        err = p.Fail(OpCreateAbs, err)
     }
     
     return
@@ -77,7 +95,7 @@ func (p Path) Create() (of *os.File, err error) {
     of, err = os.Create(p.String())
     
     if err != nil {
-        err = p.Fail(Create, err)
+        err = p.Fail(OpCreate, err)
     }
     
     return 
@@ -97,16 +115,11 @@ func (p Path) Exist() (b bool, err error) {
         return
     }
     
-    err = errors.WrapFmt(err,
-        "failed to check wether file '%s' exists", s)
+    err = p.Fail(OpExists, err)
     return
 }
 
-func (p Path) Fail(op PathOperation, err error) error {
-    return PathError{p.s, op, err}
-}
-
-func (p Path) ToValid() (vp validPath, err error) {
+func (p Path) ToValid() (vp Valid, err error) {
     exist, err := p.Exist()
     if err != nil {
         return
@@ -120,98 +133,12 @@ func (p Path) ToValid() (vp validPath, err error) {
     return
 }
 
-type validPath struct {
-    Path
-}
 
-func (vp validPath) Stat() (fi os.FileInfo, err error) {
-    fi, err = os.Lstat(vp.String())
-    
-    if err != nil {
-        err = vp.Fail(Stat, err)
-    }
-    
-    return
-}
+type ByModTime []Valid
 
-func (vp validPath) IsDir() (b bool, err error) {
-    b = false
-    fi, err := vp.Stat()
-    if err != nil {
-        return
-    }
-    
-    b = fi.IsDir()
-    return
-}
+func (a ByModTime) Len() int           { return len(a) }
+func (a ByModTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-func (vp validPath) Open() (of *os.File, err error) {
-    of, err = os.Open(vp.String())
-    
-    if err != nil {
-        err = vp.Fail(Open, err)
-    }
-    
-    return 
-}
-
-func (vp validPath) Move(dir Dir) (dst validPath, err error) {
-    _dst, err := dir.Join(vp.Base().String()).Abs()
-    if err != nil {
-        return
-    }
-    
-    s1, s2 := vp.String(), dst.String()
-    
-    if err = os.Rename(s1, s2); err != nil {
-        errors.WrapFmt(err, "failed to move '%s' to '%s'", s1, s2)
-        return
-    }
-    
-    dst, err = _dst.ToValid()
-    
-    return
-}
-
-type PathOperation int
-
-const (
-    Stat PathOperation = iota
-    Open
-    Create
-    CheckIfExist
-    CreateAbsPath
-)
-
-func (op PathOperation) String() (s string) {
-    switch op {
-    case Stat:
-        s = "retreive information"
-    case Open:
-        s = "open"
-    case Create:
-        s = "create"
-    case CheckIfExist:
-        s = "check if exists"
-    case CreateAbsPath:
-        s = "create absolute path"
-    }
-    
-    return
-}
-
-type PathError struct {
-    s string
-    op fmt.Stringer
-    err error
-}
-
-func (e PathError) Error() string {
-    return fmt.Sprintf(
-        "failed to carry out operation '%s' on path '%s'",
-         e.op.String(), e.s)
-}
-
-func (e PathError) Unwrap() error {
-    return e.err
+func (a ByModTime) Less(i, j int) bool {
+    return a[i].ModTime().Before(a[j].ModTime())
 }

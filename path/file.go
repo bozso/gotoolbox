@@ -16,17 +16,27 @@ func NewFile(s string) (f File) {
     return
 }
 
+func (f *File) Set(s string) (err error) {
+    *f, err = NewFile(s), nil
+    return
+}
+
 func (p Path) ToFile() (f File) {
     f.Path = p    
     return
 }
 
+func (p Path) Remove() (err error) {
+    err = os.Remove(p.GetPath())
+    return
+}
+
 type ValidFile struct {
-    validPath
+    Valid
 }
 
 func (f File) ToValid() (vf ValidFile, err error) {
-    vf.validPath, err = f.Path.ToValid()
+    vf.Valid, err = f.Path.ToValid()
     if err != nil {
         return
     }
@@ -43,19 +53,13 @@ func (f File) ToValid() (vf ValidFile, err error) {
     return
 }
 
-func (vf ValidFile) Move(d Dir) (vfm ValidFile, err error) {
-    vfm.validPath, err = vf.validPath.Move(d)
-    return
-}
-
 func (vf *ValidFile) Set(s string) (err error) {
-    *vf, err = New(s).ToFile().ToValid()
+    *vf, err = NewFile(s).ToValid()
     return
 }
 
-
-func (f *File) Set(s string) (err error) {
-    *f, err = New(s).ToFile(), nil
+func (vf ValidFile) Move(d Dir) (vfm ValidFile, err error) {
+    vfm.Valid, err = vf.Valid.Move(d)
     return
 }
 

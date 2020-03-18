@@ -3,14 +3,15 @@ package path
 import (
     "os"
     "fmt"
+    "io/ioutil"
 )
 
 type Dir struct {
-    validPath
+    Valid
 }
 
 func (p Path) ToDir() (d Dir, err error) {
-    d.validPath, err = p.ToValid()
+    d.Valid, err = p.ToValid()
     if err != nil {
         return
     }
@@ -36,26 +37,30 @@ func (d *Dir) Set(s string) (err error) {
 func (d Dir) Mkdir() (err error) {
     s := d.s
     if err = os.MkdirAll(s, os.ModePerm); err != nil {
-        err = d.Fail(create, err)
+        err = d.Fail(DirCreate, err)
     }
     
     return
 }
 
-type DirOperation int
-
-const (
-    create DirOperation = iota
-)
-
-func (op DirOperation) String() (s string) {
-    switch op {
-    case create:
-        s = "create directory"
-    }
-    return s
+func (d Dir) ReadDir() (fi []os.FileInfo, err error) {
+    fi, err = ioutil.ReadDir(d.GetPath())
+    return
 }
 
-func (d Dir) Fail(op DirOperation, err error) error {
-    return PathError{d.s, op, err}
+type dirOperation int
+
+const (
+    DirCreate dirOperation = iota
+)
+
+func (op dirOperation) Fmt(p Path) (s string) {
+    ps := p.GetPath()
+    
+    switch op {
+    case DirCreate:
+        s = fmt.Sprintf("failed to create directory '%s'", ps)
+    }    
+    
+    return 
 }
