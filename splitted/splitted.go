@@ -13,14 +13,31 @@ type Parser struct {
     len int
 }
 
-func New(s, sep string) (sp Parser, err error) {
-    sp.split = strings.Split(s, sep)
-    sp.len = len(sp.split)
-    
+func FromSlice(slice []string) (sp Parser, err error) {
+    sp.len = len(slice)
+
     if sp.len == 0 {
-        err = fmt.Errorf(
-            "string '%s' could no be split into " +
-            "multiple parts with separator '%s'", s, sep)
+        err = fmt.Errorf("got empty slice")
+        return
+    }
+    
+    sp.split = slice
+    return
+}
+
+func NewFields(s string) (sp Parser, err error) {
+    sp, err = FromSlice(strings.Fields(s))
+    if err != nil {
+        errors.WrapFmt(err, "could not split string '%s' into fields", s)
+    }
+    return
+}
+
+func New(s, sep string) (sp Parser, err error) {
+    sp, err = FromSlice(strings.Split(s, sep))
+    if err != nil {
+        errors.WrapFmt(err,
+            "could not parse string '%s' with separator '%s'", s, sep)
     }
     
     return

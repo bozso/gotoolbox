@@ -50,15 +50,15 @@ func (vp Valid) Open() (of *os.File, err error) {
     return 
 }
 
-func (vp Valid) Rename(target Path) (dst Valid, err error) {
-    s1, s2 := vp.String(), target.String()
+func (vp Valid) Rename(target Pather) (dst Valid, err error) {
+    s1, s2 := vp.String(), target.GetPath()
     
     if err = os.Rename(s1, s2); err != nil {
         err = errors.WrapFmt(err, "failed to move '%s' to '%s'", s1, s2)
         return
     }
     
-    dst, err = target.ToValid()
+    dst, err = New(s2).ToValid()
     return
 }
 

@@ -1,6 +1,7 @@
 package path
 
 import (
+    "fmt"
     "os"
     "strings"
     "path/filepath"
@@ -70,6 +71,10 @@ func (p Path) Abs() (pp Path, err error) {
     }
     
     return
+}
+
+func (p Path) AddExt(ext string) (pp Path) {
+    return New(fmt.Sprintf("%s.%s", p.GetPath(), ext))
 }
 
 func (p Path) Base() (pp Path) {
