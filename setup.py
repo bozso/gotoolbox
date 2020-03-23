@@ -15,12 +15,17 @@ class Project(object):
         # src_path = path.join(root, "gamma")
         # src = sources(src_path, "*.go")
         
-        cli = utils.Path("cli")
+        cli, tpl = (
+            utils.Path("cli"),
+            utils.Path("templates"),
+        )
         
         subdirs = {path.join(root, elem)
             for elem in {
                 cli,
                 cli.join("stream"),
+                tpl,
+                tpl.join("table"),
                 "splitted",
                 "command",
                 "errors",
