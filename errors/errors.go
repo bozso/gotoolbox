@@ -25,8 +25,10 @@ func (e ErrorBase) Unwrap() error {
     return e.err
 }
 
-func NotEmpty(variable, s string) (err error) {
-    if len(s) == 0 {
+type NotEmpty string
+
+func (n NotEmpty) Check(variable string) (err error) {
+    if len(n) == 0 {
         return EmptyStringError{variable, nil}
     }
     

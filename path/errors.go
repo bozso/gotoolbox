@@ -2,6 +2,8 @@ package path
 
 import (
     "fmt"
+
+    "github.com/bozso/gotoolbox/errors"
 )
 
 func (p Path) Fail(efmt ErrorFmt, err error) (Err error) {
@@ -23,7 +25,7 @@ func (e pathError) Unwrap() error {
 }
 
 func (e pathError) Error() string {
-    return e.efmt.Fmt(e.p)
+    return errors.WrapFmt(e.Unwrap(), "%s", e.efmt.Fmt(e.p)).Error()
 }
 
 type operation int

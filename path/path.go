@@ -4,8 +4,11 @@ import (
     "fmt"
     "os"
     "strings"
+    "bytes"
     "path/filepath"
     pa "path"
+
+    "github.com/bozso/gotoolbox/errors"
 )
 
 type Pather interface {
@@ -127,6 +130,7 @@ func (p Path) Exist() (b bool, err error) {
 func (p Path) ToValid() (vp Valid, err error) {
     exist, err := p.Exist()
     if err != nil {
+        err = errors.WrapFmt(err, "failed to convert Path to a Valid path")
         return
     }
     
@@ -138,6 +142,19 @@ func (p Path) ToValid() (vp Valid, err error) {
     return
 }
 
+func (p Path) MarshalJSON() (b []byte, err error) {
+    return []byte(p.GetPath()), nil
+}
+
+func trim(b []byte) (s string) {
+    s = string(bytes.Trim(b, "\""))
+    return
+}
+
+func (p *Path) UnmarhalJSON(b []byte) (err error) {
+    p.s = trim(b)
+    return nil
+}
 
 type ByModTime []Valid
 

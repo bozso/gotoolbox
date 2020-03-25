@@ -15,41 +15,37 @@ func new(tag string) (t Tag) {
 }
 
 func (t Tag) Format(s string) (ss string) {
-    retunr fmt.Sprintf(t.tpl, s)
+    return fmt.Sprintf(t.tpl, s)
 }
 
-var (
-    tr = new("tr"),
-    th = new("th")
-    td = new("td")
-)
+var tr, th, td = new("tr"), new("th"), new("td")
 
 type HtmlWriter struct {
-    b strings.Builder
+    strings.Builder
 }
 
 func (h *HtmlWriter) StartRow() {
-    h.b.WriteString("<tr>")
+    h.Builder.WriteString("<tr>")
 }
 
 func (h *HtmlWriter) EndRow() {
-    h.b.WriteString("</tr>")
+    h.Builder.WriteString("</tr>")
 }
 
 func (h *HtmlWriter) Header(s string) {
-    h.b.WriteString(th.Format(s))
+    h.Builder.WriteString(th.Format(s))
 }
 
-func (h *HtmlWriter) AddHeader(h Header) {
+func (h *HtmlWriter) AddHeader(head Header) {
     h.StartRow()
-    for _, header := range h {
+    for _, header := range head {
         h.Header(header)
     }
     h.EndRow()
 }
 
 func (h *HtmlWriter) Elem(s string) {
-    h.b.WriteString(td.Format(s))
+    h.Builder.WriteString(td.Format(s))
 }
 
 func (h *HtmlWriter) AddRow(r Row) {

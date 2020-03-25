@@ -1,7 +1,9 @@
 package table
 
-type Row []string
-type Header []string
+type (
+    Row []string
+    Header []string
+)
 
 type Table struct{
     Header     `json:"header"`
@@ -25,12 +27,12 @@ func (t Table) ToString(mode string) (s string, err error) {
     var w Writer
     switch tmode {
     case Html:
-        w = HtmlWriter{}
+        w = &HtmlWriter{}
     case Latex:
-        w = LatexWriter{}   
+        w = &LatexWriter{}   
     }
     
-    t.WriteTo(&w)
+    t.WriteTo(w)
     
     s = w.String()
     return

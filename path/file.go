@@ -5,6 +5,9 @@ import (
     "os"
     "bufio"
     "io/ioutil"
+    "encoding/json"
+
+    "github.com/bozso/gotoolbox/errors"
 )
 
 type File struct {
@@ -54,7 +57,17 @@ func (f File) ToValid() (vf ValidFile, err error) {
 }
 
 func (vf *ValidFile) Set(s string) (err error) {
+    err = errors.NotEmpty(s).Check("valid file path")
+    if err != nil {
+        return
+    }
+    
     *vf, err = NewFile(s).ToValid()
+    return
+}
+
+func (vf *ValidFile) UnmarshalJSON(b []byte) (err error) {
+    err = vf.Set(trim(b))
     return
 }
 
@@ -87,4 +100,28 @@ func (vf ValidFile) ReadAll() (b []byte, err error) {
     
     b, err = ioutil.ReadAll(file)
     return
+}
+
+func (vf ValidFile) LoadJson(val interface{}) (err error) {
+    b, err := vf.ReadAll()
+    if err != nil {
+        return
+    }
+    
+    err = json.Unmarshal(b, val)
+    if err != nil {
+        return
+    }
+    
+    v, ok := val.(Validator)
+    if !ok {
+        return
+    }
+    
+    err = v.Validate()
+    return
+}
+
+type Validator interface {
+    Validate() error
 }

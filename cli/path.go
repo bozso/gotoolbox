@@ -8,11 +8,15 @@ import (
 )
 
 type Slice struct {
-    slice []string
+    content []string
+}
+
+func (s Slice) Iter() (sl []string) {
+    return s.content
 }
 
 func (sl Slice) String() (out string) {
-    if s := sl.slice; s == nil {
+    if s := sl.content; s == nil {
         out = ""
     } else {
         out = fmt.Sprintf("%s\n", s)
@@ -29,19 +33,19 @@ func (sl *Slice) Set(s string) (err error) {
         return
     }
     
-    sl.slice = slice
+    sl.content = slice
     return
 }
 
 func (sl Slice) Len() int {
-    return len(sl.slice)
+    return len(sl.content)
 }
 
 type Paths []path.Path
 
 func (sl Slice) ToPaths() (p Paths, err error) {
     p = make(Paths, sl.Len())
-    s := sl.slice
+    s := sl.content
     
     for ii, _ := range s {
         p[ii] = path.New(s[ii])

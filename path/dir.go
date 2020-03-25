@@ -33,6 +33,10 @@ func (d *Dir) Set(s string) (err error) {
     return
 }
 
+func (d *Dir) UnmarshalJSON(b []byte) (err error) {
+    err = d.Set(trim(b))
+    return
+}
 
 func (d Dir) Mkdir() (err error) {
     s := d.s
