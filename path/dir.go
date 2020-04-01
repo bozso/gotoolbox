@@ -38,12 +38,12 @@ func (d *Dir) UnmarshalJSON(b []byte) (err error) {
     return
 }
 
-func (d Dir) Mkdir() (err error) {
-    s := d.s
-    if err = os.MkdirAll(s, os.ModePerm); err != nil {
+func (p Path) Mkdir() (d Dir, err error) {
+    if err = os.MkdirAll(p.GetPath(), os.ModePerm); err != nil {
         err = d.Fail(DirCreate, err)
     }
     
+    d.Path = p
     return
 }
 

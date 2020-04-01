@@ -12,6 +12,20 @@ type Valid struct {
     Path
 }
 
+func (v Valid) ToFile() (vf ValidFile, err error) {
+    isDir, err := v.IsDir()
+    if err != nil {
+        return
+    }
+    
+    if isDir {
+        err = fmt.Errorf("path '%s' is not a file, but a directory", v)
+    }
+
+    vf.Path = v.Path
+    return
+}
+
 func (vp Valid) Stat() (fi os.FileInfo, err error) {
     fi, err = os.Lstat(vp.String())
     

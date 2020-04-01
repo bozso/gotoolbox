@@ -1,7 +1,6 @@
 package path
 
 import (
-    "fmt"
     "os"
     "bufio"
     "io/ioutil"
@@ -39,20 +38,12 @@ type ValidFile struct {
 }
 
 func (f File) ToValid() (vf ValidFile, err error) {
-    vf.Valid, err = f.Path.ToValid()
+    v, err := f.Path.ToValid()
     if err != nil {
         return
     }
     
-    isDir, err := vf.IsDir()
-    if err != nil {
-        return
-    }
-    
-    if isDir {
-        err = fmt.Errorf("path '%s' is not a file, but a directory", f)
-    }
-
+    vf, err = v.ToFile()
     return
 }
 

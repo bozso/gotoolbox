@@ -13,7 +13,7 @@ type Command struct {
 
 func New(cmd string) Command {
     return Command{
-        cmd: cmd,
+        cmd: cmd + " ",
         debug: false,
     }
 }
@@ -38,14 +38,24 @@ func (c Command) Call(args ...interface{}) (s string, err error) {
 func (c Command) CallWithArgs(args ...string) (s string, err error) {
     // fmt.Printf("%s %s\n", cmd, str.Join(arg, " "))
     // os.Exit(0)
-
-    out, err := exec.Command(c.cmd, args...).CombinedOutput()
-    s = string(out)
     
+    if c.debug {
+        fmt.Printf("Debug mode: command: %s\n", c.cmd + strings.Join(args, " "))
+        return s, nil
+    }
+    
+    cmd := exec.Command(c.cmd, args...)
+    err = cmd.Start() 
     if err != nil {
         err = Fail{cmd:c.cmd, out:s, args:args, err:err}
         return
     }
+    
+    err = cmd.Wait()
+    if err != nil {
+        return
+    }
+    s = ""
 
     return
 }

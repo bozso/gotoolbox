@@ -85,8 +85,10 @@ func (o OutOfBoundError) Unwrap() error {
     return o.err
 }
 
-func IsOutOfBounds(idx, length int) error {
-    if idx >= length {
+type Bound int
+
+func (b Bound) IsOutOfBounds(idx int) error {
+    if length := int(b); idx >= length {
         return OutOfBoundError{idx:idx, length:length}
     }
     return nil
