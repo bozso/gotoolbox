@@ -1,4 +1,4 @@
-package template
+package media
 
 import (
     "github.com/bozso/gotoolbox/errors"
@@ -9,29 +9,29 @@ type Media struct {
     path.ValidFile
 }
 
-func NewMedia(vf path.ValidFile) (m Media) {
+func New(vf path.ValidFile) (m Media) {
     m.ValidFile = vf
     return m
 }
 
-type MediaPaths struct {
+type Paths struct {
     content []path.ValidFile
 }
 
-func NewPaths(vf []path.ValidFile) (m MediaPaths) {
+func NewPaths(vf []path.ValidFile) (m Paths) {
     m.content = vf
     return
 }
 
-func (p MediaPaths) Len() errors.Bound {
+func (p Paths) Len() errors.Bound {
     return errors.Bound(len(p.content))
 }
 
-func (p MediaPaths) Iter() []path.ValidFile {
+func (p Paths) Iter() []path.ValidFile {
     return p.content
 }
 
-func (p MediaPaths) Index(ii int) (m Media, err error) {
+func (p Paths) Index(ii int) (m Media, err error) {
     if err = p.Len().IsOutOfBounds(ii); err != nil {
         return
     }
@@ -40,6 +40,10 @@ func (p MediaPaths) Index(ii int) (m Media, err error) {
     return Media{p.content[ii]}, nil
 }
 
-func (p MediaPaths) Last() (m Media) {
+func (p Paths) First() (m Media) {
+    return Media{p.content[0]}
+}
+
+func (p Paths) Last() (m Media) {
     return Media{p.content[len(p.content) - 1]}
 }

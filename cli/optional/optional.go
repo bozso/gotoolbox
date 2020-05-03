@@ -1,7 +1,9 @@
-package cli
+package optional
 
 import (
     "flag"
+
+    "github.com/bozso/gotoolbox/cli"
 )
 
 type Optional struct {
@@ -13,7 +15,7 @@ func (o Optional) IsSet() bool {
     return o.set
 }
 
-func (o *Optional) SetCli(c *Cli, val flag.Value, name, descr string) {
+func (o *Optional) SetCli(c *cli.Cli, val flag.Value, name, descr string) {
     o.set = false
     c.Var(o.Setup(val), name, descr)
     
