@@ -36,11 +36,35 @@ func (vp Valid) Stat() (fi os.FileInfo, err error) {
     return
 }
 
-func (vp Valid) ModTime() (t time.Time) {
-    // what should happen in case of an error
-    fi, _ := vp.Stat()
+func (vp Valid) ModTime() (t time.Time, err error) {
+    fi, err := vp.Stat()
+    if err != nil {
+        return
+    }
     
-    return fi.ModTime()
+    t = fi.ModTime()
+    return 
+}
+
+func (v Valid) OlderThen(vp Valid) (b bool, err error) {
+    t1, err := v.ModTime()
+    if err != nil {
+        return
+    }
+
+    t2, err := v.ModTime()
+    if err != nil {
+        return
+    }
+    
+    b = t1.After(t2)
+    return
+}
+
+func (v Valid) YoungerThen(vp Valid) (b bool, err error) {
+    b, err = v.OlderThen(vp)
+    b = !b
+    return
 }
 
 func (vp Valid) IsDir() (b bool, err error) {

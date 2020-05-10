@@ -158,9 +158,21 @@ func (p *Path) UnmarhalJSON(b []byte) (err error) {
 
 type ByModTime []Valid
 
-func (a ByModTime) Len() int           { return len(a) }
-func (a ByModTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (b ByModTime) Len() int           { return len(b) }
+func (b ByModTime) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
-func (a ByModTime) Less(i, j int) bool {
-    return a[i].ModTime().Before(a[j].ModTime())
+
+func (b ByModTime) Less(i, j int) bool {
+    const check errors.Asserter = "failed to retreive modification time" 
+    
+    v1 := b[i]
+    t1, err := v1.ModTime()
+    check.Checkf(err, "for path '%s'", v1)
+
+    v2 := b[j]
+    t2, err := v2.ModTime()
+    check.Checkf(err, "for path '%s'", v2)
+    
+    
+    return t1.Before(t2)
 }
