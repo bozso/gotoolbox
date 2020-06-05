@@ -12,6 +12,23 @@ type Status struct {
     Err error
 }
 
+type CaptureFn func()
+
+func (s Status) Use(err *error) CaptureFn {
+    return func() {
+        s.Err = *err
+    }
+}
+
+type Capture struct {
+    s *Status
+    err *error
+}
+
+func (c Capture) Set() {
+    c.s.Err = *c.err
+}
+
 func (s Status) IsErr() (b bool) {
     return s.Err != nil
 }
@@ -24,6 +41,15 @@ func (s Status) Get() (err error) {
     return s.Err
 }
 
-func (s *Status) From(g Getter) {
-    s.Err = g.Get()
+func (s *Status) From(g Getter) (b bool) {
+    err := g.Get()
+
+    if err != nil {
+        s.Err = err
+        b = true
+    } else {
+        b = false
+    }
+    
+    return
 }
