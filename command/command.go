@@ -13,7 +13,7 @@ type Command struct {
 
 func New(cmd string) Command {
     return Command{
-        cmd: cmd + " ",
+        cmd: cmd,
         debug: false,
     }
 }
@@ -40,30 +40,26 @@ func (c Command) CallWithArgs(args ...string) (s string, err error) {
     // os.Exit(0)
     
     if c.debug {
-        fmt.Printf("Debug mode: command: %s\n", c.cmd + strings.Join(args, " "))
-        return s, nil
+        fmt.Printf("Debug mode: command to run: '%s %s'\n", c.cmd,
+            strings.Join(args, " "))
+        return
     }
     
     cmd := exec.Command(c.cmd, args...)
-    err = cmd.Start() 
+    b, err := cmd.CombinedOutput()
+    s = string(b)
+    
     if err != nil {
         err = Fail{cmd:c.cmd, out:s, args:args, err:err}
         return
     }
-    
-    err = cmd.Wait()
-    if err != nil {
-        return
-    }
-    s = ""
 
     return
 }
 
+const errorMessage = "Command '%s %s' failed! Error: '%s'\nOutput of command is: %v"
 
-const errorMessage = "Command '%s %s' failed!\nOutput of command is: %v"
-
-type Fail struct{
+type Fail struct {
     cmd, out string
     args []string
     err error
@@ -71,7 +67,7 @@ type Fail struct{
 
 func (f Fail) Error() string {
     return fmt.Sprintf(errorMessage,
-        f.cmd, strings.Join(f.args, " "), f.out)
+        f.cmd, strings.Join(f.args, " "), f.err, f.out)
 }
 
 func (f *Fail) Wrap(err error) error {

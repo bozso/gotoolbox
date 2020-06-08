@@ -46,7 +46,7 @@ func (op operation) Fmt(P Path) (s string) {
     case OpCreateAbs:
         s = fmt.Sprintf("failed to create absolute path '%s'", p)
     case OpStat:
-        s = fmt.Sprintf("failed to retreive information on path '%s'", p)
+        s = "failed to retreive information:"
     case OpExists:
         s = fmt.Sprintf("failed to check if path '%s' exists", p)
     // add default case?

@@ -7,8 +7,8 @@ import (
 type NotEmpty string
 
 func (n NotEmpty) Check(variable string) (err error) {
-    if len(n) == 0 {
-        return EmptyStringError{variable, nil}
+    if len(variable) == 0 {
+        return EmptyStringError{string(n), nil}
     }
     
     return nil

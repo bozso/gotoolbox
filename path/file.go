@@ -48,8 +48,9 @@ func (f File) ToValid() (vf ValidFile, err error) {
 }
 
 func (vf *ValidFile) Set(s string) (err error) {
-    err = errors.NotEmpty(s).Check("valid file path")
-    if err != nil {
+    const name errors.NotEmpty = "valid file path"
+
+    if err = name.Check(s); err != nil {
         return
     }
     
@@ -59,6 +60,11 @@ func (vf *ValidFile) Set(s string) (err error) {
 
 func (vf *ValidFile) UnmarshalJSON(b []byte) (err error) {
     err = vf.Set(trim(b))
+    return
+}
+
+func (vf ValidFile) ToFile() (f File) {
+    f.Path = vf.Path
     return
 }
 

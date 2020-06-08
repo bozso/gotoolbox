@@ -25,30 +25,34 @@ func FromSlice(slice []string) (sp Parser, err error) {
     return
 }
 
+
+const splitErr errors.String = "could not split string '%s' into fields"
+
 func NewFields(s string) (sp Parser, err error) {
     sp, err = FromSlice(strings.Fields(s))
     if err != nil {
-        errors.WrapFmt(err, "could not split string '%s' into fields", s)
+        splitErr.WrapFmt(err, s)
     }
     return
 }
 
+const parseErr errors.String = "could not parse string '%s' with separator '%s'"
+
 func New(s, sep string) (sp Parser, err error) {
     sp, err = FromSlice(strings.Split(s, sep))
     if err != nil {
-        errors.WrapFmt(err,
-            "could not parse string '%s' with separator '%s'", s, sep)
+        parseErr.WrapFmt(err, s, sep)
     }
     
     return
 }
 
-func (sp Parser) Len() int {
-    return sp.len
+func (sp Parser) Len() (e errors.Bound) {
+    return errors.Bound(sp.len)
 }
 
 func (sp Parser) Idx(idx int) (s string, err error) {
-    if err = errors.IsOutOfBounds(idx, sp.len); err != nil {
+    if err = sp.Len().IsOutOfBounds(idx); err != nil {
         return
     }
     

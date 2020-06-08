@@ -52,3 +52,18 @@ func (b Bound) IsOutOfBounds(idx int) error {
     }
     return nil
 }
+
+type String string
+
+func (e String) Wrap(err error) (Err error) {
+    return fmt.Errorf("%w\n%w", e, err)
+}
+
+func (e String) WrapFmt(err error, args ...interface{}) (Err error) {
+    s := fmt.Sprintf(string(e), args...)
+    return fmt.Errorf("%s\n%w", s, err)
+}
+
+func (e String) Error() (s string) {
+    return string(e)
+}

@@ -1,6 +1,7 @@
 package cli
 
 import (
+    "os"
     "fmt"
     "flag"
 
@@ -8,9 +9,13 @@ import (
 )
 
 type (
-    Action interface {
-        SetCli(*Cli)
+    Runner interface {
         Run() error
+    }
+    
+    Action interface {
+        Runner
+        SetCli(*Cli)
     }
     
     subcommand struct {
@@ -107,5 +112,25 @@ func (c Cli) Run(args []string) (err error) {
     }
     
     return act.Run()
+}
+
+type RunFn func() error
+
+func (r RunFn) Run() error {
+    return r()
+}
+
+func Run(r RunFn) {
+    run(r)
+}
+
+func run(r Runner) {
+    if err := r.Run(); err != nil {
+        fmt.Fprintf(os.Stderr,
+            "Error occurred in main while running: %s\n", err)
+        os.Exit(1)
+    }
+    
+    os.Exit(0)
 }
 
