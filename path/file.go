@@ -63,6 +63,11 @@ func (vf *ValidFile) UnmarshalJSON(b []byte) (err error) {
     return
 }
 
+func (vf ValidFile) ToPath() (v Valid) {
+    v.Path = vf.Path
+    return
+}
+
 func (vf ValidFile) ToFile() (f File) {
     f.Path = vf.Path
     return

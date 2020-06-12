@@ -1,4 +1,4 @@
-package result
+package doc
 
 import (
 
@@ -42,6 +42,10 @@ func (s Status) Get() (err error) {
 }
 
 func (s *Status) From(g Getter) (b bool) {
+    if s.Err != nil {
+        return true
+    }
+    
     err := g.Get()
 
     if err != nil {
