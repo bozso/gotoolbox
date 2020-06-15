@@ -88,6 +88,10 @@ func (vp Valid) Open() (of *os.File, err error) {
     return 
 }
 
+func (vp Valid) Remove() (err error) {
+    return os.Remove(vp.String())
+}
+
 func (vp Valid) Rename(target Pather) (dst Valid, err error) {
     s1, s2 := vp.String(), target.GetPath()
     

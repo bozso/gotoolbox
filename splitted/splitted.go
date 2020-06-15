@@ -51,6 +51,23 @@ func (sp Parser) Len() (e errors.Bound) {
     return errors.Bound(sp.len)
 }
 
+func (sp Parser) At(idx int) (s string, err error) {
+    return sp.Idx(idx)
+}
+
+type Value interface {
+    Set(string) error
+}
+
+func (p Parser) ValueAt(v Value, idx int) (err error) {
+    s, err := p.At(idx)
+    if err != nil {
+        return
+    }
+    
+    return v.Set(s)
+}
+
 func (sp Parser) Idx(idx int) (s string, err error) {
     if err = sp.Len().IsOutOfBounds(idx); err != nil {
         return

@@ -99,6 +99,10 @@ func (p Path) NoExt() (pp Path) {
     return Path{strings.TrimSuffix(s, p.Ext())}
 }
 
+func (p Path) Dir() (pp Path) {
+    return New(filepath.Dir(p.GetPath()))
+}
+
 func (p Path) Create() (of *os.File, err error) {
     of, err = os.Create(p.String())
     
