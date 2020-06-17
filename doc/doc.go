@@ -46,20 +46,23 @@ func (in Indices) Start(start int) (ind Indices) {
 
 type Iter struct {
     Indices
-    current int 
+    current, index int 
 }
 
-func (in Indices) Iter() (it Iter) {
-    it.Indices, it.current = in, it.start
-    return
+func (in Indices) Iter() (it *Iter) {
+    return &Iter{
+        Indices: in,
+        current: in.start,
+        index: 0,
+    }
 }
 
 func (it *Iter) Range() (reflect.Value, reflect.Value, bool) {
     for it.current < it.stop {
-        curr := reflect.ValueOf(it.current)
         it.current += it.step
+        it.index += 1
         
-        return curr, curr, false 
+        return reflect.ValueOf(it.index), reflect.ValueOf(it.current), false 
     }
     
     return reflect.Value{}, reflect.Value{}, true
