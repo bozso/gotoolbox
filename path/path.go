@@ -12,7 +12,7 @@ import (
 )
 
 type Pather interface {
-    GetPath() string
+    AsPath() Path
 }
 
 type Baser interface {
@@ -26,6 +26,13 @@ type Path struct {
 func New(p string) Path {
     return Path{p}
 } 
+
+/*
+ * Make all structs that embedd Path trivially convertable back to Path.
+ */
+func (p Path) AsPath() (rp Path) {
+    return p
+}
 
 func Joined(args ...string) Path {
     return Path{filepath.Join(args...)}

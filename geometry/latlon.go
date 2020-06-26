@@ -12,6 +12,11 @@ type LatLon struct {
     Lon float64 `json:"lot"`
 }
 
+func (ll LatLon) ToPoint() (p Point2D) {
+    p.X, p.Y = ll.Lon, ll.Lat
+    return 
+} 
+
 func (ll LatLon) String() string {
     return fmt.Sprintf("%f,%f", ll.Lon, ll.Lat)
 }

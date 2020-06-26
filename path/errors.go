@@ -6,6 +6,8 @@ import (
     "github.com/bozso/gotoolbox/errors"
 )
 
+var Error pathError
+
 func (p Path) Fail(efmt ErrorFmt, err error) (Err error) {
     return pathError{p, efmt, err}
 }

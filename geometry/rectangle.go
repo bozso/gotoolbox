@@ -1,8 +1,6 @@
 package geometry
 
 import (
-    "io"
-    "fmt"
 )
 
 type Point2D struct {
@@ -10,25 +8,21 @@ type Point2D struct {
     Y float64 `json:"y"`
 }
 
-type LeftRight struct {
-    Left  Point `json:"left"`
-    Right Point `json:"right"`
+type LeftRight2D struct {
+    Left  Point2D `json:"left"`
+    Right Point2D `json:"right"`
 }
 
 type Rectangle struct {
-    Upper LeftRight `json:"upper"`
-    Lower LeftRight `json:"lower"`
+    X MinMaxFloat `json:"x"`
+    Y MinMaxFloat `json:"y"`
 }
 
-func (r Rectangle) InitFormat(wr io.Writer) (n int, err error) {
-    // TODO: rework tpl string
-    const tpl = "{0:>12s}{1:>12s}{2:>12s}{3:>12s}{4:>12s}{5:>12s}{6:>12s}{7:>12s}"
+func (r Rectangle) Contains(p Point2D) (b bool) {
+    return p.InRectangle(r)
+}
 
-    s := fmt.Sprintf(tpl,
-        r.Lower.Left.X, r.Lower.Left.Y,
-        r.Upper.Left.X, r.Upper.Left.Y,
-        r.Lower.Right.X, r.Lower.Right.Y,
-        r.Upper.Right.X, r.Upper.Right.Y)
-    
-    return wr.Write([]byte(s))
+func (p Point2D) InRectangle(r Rectangle) (b bool) {
+    return (p.X < r.X.Max && p.X > r.X.Min &&
+            p.Y < r.Y.Max && p.Y > r.Y.Min)
 }

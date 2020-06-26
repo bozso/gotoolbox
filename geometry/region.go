@@ -1,8 +1,7 @@
 package geometry
 
 import (
-    "io"
-    "fmt"
+
 )
 
 type Axis int
@@ -23,36 +22,43 @@ const (
 
 type MinMaxF64 [MinMaxNum]float64
 
+type MinMaxFloat struct {
+    Min float64 `json:"min"`
+    Max float64 `json:"max"`
+}
+
 type Region struct {
-    X, Y MinMaxF64
+    Min Point2D `json:"min"`
+    Max Point2D `json:"max"`
 }
 
 func NewRegion(xmin, xmax, ymin, ymax float64) (r Region) {
     return Region{
-        X: MinMaxF64{
-            Min: xmin,
-            Max: xmax,
+        Min: Point2D{
+            X: xmin,
+            Y: ymin,
         },
-        Y: MinMaxF64{
-            Min: ymin,
-            Max: ymax,
+        Max: Point2D{
+            X: xmax,
+            Y: ymax,
         },
     }
 }
 
-func (r Region) InitFormat(wr io.Writer) (n int, err error) {
-    // TODO: rework tpl string
-    const tpl = "{0:>22s}{1:>14s}{2:>12s}{3:>14s}"
-
-    s := fmt.Sprintf(tpl,
-        r.X[Min], r.X[Max],
-        r.Y[Min], r.Y[Max])
-
-    return wr.Write([]byte(s))
+func (r Region) Contains(p Point2D) (b bool) {
+    return (p.X < r.Max.X && p.X > r.Min.X &&
+            p.Y < r.Max.Y && p.Y > r.Min.Y)
 }
 
-func (r Region) DirName() (s string) {
-    return fmt.Sprintf("x_%d_%d__y_%d_%d",
-        int(r.X[Min]), int(r.X[Max]),
-        int(r.Y[Min]), int(r.Y[Max]))
+func (r Region) Upper() (lr LeftRight2D) {
+    lr.Left.X, lr.Left.Y = r.Min.X, r.Max.Y
+    lr.Right.X, lr.Right.Y = r.Min.X, r.Max.Y
+    return
 }
+
+func (r Region) Lower() (lr LeftRight2D) {
+    lr.Left.X, lr.Left.Y = r.Min.X, r.Min.Y
+    lr.Right.X, lr.Right.Y = r.Max.X, r.Min.Y
+    return
+}
+

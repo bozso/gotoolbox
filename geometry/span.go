@@ -4,7 +4,7 @@ import (
 
 )
 
-type SpanBuilder struct {
+type SpanBuilder interface {
     BuildSpan() Span
 }
 
@@ -27,7 +27,8 @@ type BeginEnd struct {
 
 func (be BeginEnd) BuildSpan() (r Span) {
     r.Begin, r.End = be.Begin, be.End
-    r.Width = r.End, r.Begin
+    r.Width.width = r.End.end - r.Begin.begin
+    return
 }
 
 type BeginWidth struct {
@@ -37,7 +38,8 @@ type BeginWidth struct {
 
 func (bw BeginWidth) BuildSpan() (r Span) {
     r.Begin, r.Width = bw.Begin, bw.Width
-    r.End = r.Begin + r.Width
+    r.End.end = r.Begin.begin + r.Width.width
+    return
 }
 
 type EndWidth struct {
@@ -47,7 +49,8 @@ type EndWidth struct {
 
 func (ew EndWidth) BuildSpan() (r Span) {
     r.End, r.Width = ew.End, ew.Width
-    r.Begin = r.End - r.Width
+    r.Begin.begin = r.End.end - r.Width.width
+    return
 }
 
 type Span struct {
