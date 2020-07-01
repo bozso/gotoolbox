@@ -2,99 +2,88 @@ package server
 
 import (
     "fmt"
-    
-    "github.com/valyala/fasthttp"
-    "github.com/tidwall/gjson"
+    "encoding/json"
 )
-
-type Base struct {
-    jsonrpc string
-    id gjson.Result
-}
-
-type Version string
 
 const version Version = "2.0"
 
-type VersionMismatch struct {
-    expected Version
-    got string
-}
 
-func (v VersionMismatch) Error() (s string) {
-    return fmt.Sprintf("Expected version string to be '%s', got '%s'",
-        v.expected, v.got)
-}
-
-func (v Version) Validate(s string) (err error) {
-    if s != string(v) {
-        err = VersionMismatch{expected: v, got: s}
-    }
-    return
-}
-
-func (b *Base) FromJson(r Result) (err error) {
-    j := r.Get("jsonrpc")
-    
-    if err = j.Exists(); err != nil {
-        return
-    }
-    
-    jsonrpc := j.String()
-    
-    if err = version.Validate(jsonrpc); err != nil {
-        return err
-    }
-    
-    j  = r.Get("id")
-
-    if err = j.Exists(); err != nil {
-        return
-    }
-    
-    b.id = j.Result
-    return
+type Base struct {
+    jsonrpc string `json:"jsonrpc"`
+    id      string `json:"id,omitempty"`
 }
 
 type Request struct {
     Base
-    method string
-    params Field
+    method string `json:"method"`
+    params []byte `json:"params,omitempty"`
 }
 
-func (req *Request) FromJson(r Result) (err error) {
-    if err = req.Base.FromJson(r); err != nil {
+type Success struct {
+    Base
+    result []byte `json:"result"`
+}
+
+func (s Success) Respond(w io.Writer) (err error) {
+    b, err := json.Marshal(f)
+    if err != nil {
         return
     }
     
-    j := r.Get("method")
-    if err = j.Exists(); err != nil {
-        return
-    }
-    req.method = j.String()
-    
-    j = r.Get("params")
-    if err = j.Exists(); err != nil {
-        return
-    }
-    
-    req.params = j
+    _, err = w.Write(b)
     return
 }
 
-type JSONRpc struct {
-    methods map[string]Handler
-    paramName string
+type Failure struct {
+    Base
+    err string `json:"error"`
 }
 
-func (j JSONRpc) Handle(ctx *fasthttp.RequestCtx) {
+func (f Failure) Respond(w io.Writer) (err error) {
+    b, err := json.Marshal(f)
+    if err != nil {
+        return
+    }
     
+    _, err = w.Write(b)
+    return
+}
+
+type Responder interface {
+    Respond(w io.Writer) (err error)
+}
+
+type JSONRpc struct {
+    Groups
+    //paramName string
+}
+
+var jsonType = []byte{"application/json"}
+
+func (j JSONRpc) HandleImpl(ctx *fasthttp.RequestCtx) (err error) {
+    cReq := ctx.Request
+    
+    if cReq.Header.ContentType != jsonType {
+        err = WrongContentType{}
+        return
+    }
+    
+    var req Request
+    if err := json.Unmarshal(cReq.Body(), &req); err != nil {
+        return
+    }
+    
+    var out []byte
+    
+    err = j.Groups.Handle(group, method, req.params, out)
+    
+    if err != nil {
+        
+    }
+    
+    return
 }
 
 type Handler interface {
-    Handle([]byte) (Marshaller, error)
-}
-
-type Marshaller interface {
-    Marshall() ([]byte, error)
+    Handle(in, out []byte) (err error)
 }
