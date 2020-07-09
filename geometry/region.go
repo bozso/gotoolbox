@@ -22,11 +22,13 @@ const (
 type MinMaxF64 [MinMaxNum]float64
 
 type MinMaxFloat struct {
-    Min, Max float64
+    Min float64 `json:"min"`
+    Max float64 `json:"max"`
 }
 
 type Region struct {
-    X, Y MinMaxFloat
+    X MinMaxFloat `json:"x"`
+    Y MinMaxFloat `json:"y"`
 }
 
 func NewRegion(xmin, xmax, ymin, ymax float64) (r Region) {
