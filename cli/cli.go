@@ -72,7 +72,11 @@ func (c Cli) Usage() {
     }
 }
 
-func (c Cli) Run(args []string) (err error) {
+func (c Cli) Run() (err error) {
+    return c.RunWithArgs(os.Args[1:])
+}
+
+func (c Cli) RunWithArgs(args []string) (err error) {
     //ferr := merr.Make("Cli.Run")
     
     if !c.HasSubcommands() {
@@ -120,11 +124,7 @@ func (r RunFn) Run() error {
     return r()
 }
 
-func Run(r RunFn) {
-    run(r)
-}
-
-func run(r Runner) {
+func Run(r Runner) {
     if err := r.Run(); err != nil {
         fmt.Fprintf(os.Stderr,
             "Error occurred in main while running: %s\n", err)

@@ -47,6 +47,10 @@ func (p Path) Mkdir() (d Dir, err error) {
     return
 }
 
+func (d Dir) Chdir() (err error) {
+    return os.Chdir(d.String())
+}
+
 func (d Dir) ReadDir() (fi []os.FileInfo, err error) {
     fi, err = ioutil.ReadDir(d.GetPath())
     return

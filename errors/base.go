@@ -1,5 +1,10 @@
 package errors
 
+import (
+    "os"
+    "fmt"
+)
+
 type Base struct {
     err error
 }
@@ -11,4 +16,15 @@ func (e *Base) Wrap(err error) (b *Base) {
 
 func (e Base) Unwrap() error {
     return e.err
+}
+
+func Assert(cond bool, msg string, args ...interface{}) {
+    if !cond {
+        Panicf(msg, args...)
+    }
+}
+
+func Panicf(msg string, args ...interface{}) {
+    fmt.Fprintf(os.Stderr, msg, args...)
+    panic("")
 }

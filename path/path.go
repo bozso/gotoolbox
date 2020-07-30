@@ -154,15 +154,14 @@ func (p Path) ToValid() (vp Valid, err error) {
 }
 
 func (p Path) MarshalJSON() (b []byte, err error) {
-    return []byte(p.GetPath()), nil
+    return []byte(fmt.Sprintf("\"%s\"", p.GetPath())), nil
 }
 
 func trim(b []byte) (s string) {
-    s = string(bytes.Trim(b, "\""))
-    return
+    return string(bytes.Trim(b, "\""))
 }
 
-func (p *Path) UnmarhalJSON(b []byte) (err error) {
+func (p *Path) UnmarshalJSON(b []byte) (err error) {
     p.s = trim(b)
     return nil
 }

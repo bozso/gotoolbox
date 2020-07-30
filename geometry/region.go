@@ -1,7 +1,6 @@
 package geometry
 
 import (
-
 )
 
 type Axis int
@@ -61,4 +60,3 @@ func (r Region) Lower() (lr LeftRight2D) {
     lr.Right.X, lr.Right.Y = r.Max.X, r.Min.Y
     return
 }
-
