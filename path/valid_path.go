@@ -4,12 +4,24 @@ import (
     "fmt"
     "os"
     "time"
+    "encoding/json"
 
     "github.com/bozso/gotoolbox/errors"
 )
 
 type Valid struct {
     Path
+}
+
+func (v *Valid) UnmarshalJSON(b []byte) (err error) {
+    var p Path
+    
+    if err = json.Unmarshal(b, &p); err != nil {
+        return
+    }
+    
+    *v, err = p.ToValid()
+    return
 }
 
 func (v Valid) ToFile() (vf ValidFile, err error) {

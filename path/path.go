@@ -6,9 +6,10 @@ import (
     "strings"
     "bytes"
     "path/filepath"
+    "errors"
     pa "path"
 
-    "github.com/bozso/gotoolbox/errors"
+    gerrors "github.com/bozso/gotoolbox/errors"
 )
 
 type Pather interface {
@@ -138,15 +139,43 @@ func (p Path) Exist() (b bool, err error) {
     return
 }
 
-func (p Path) ToValid() (vp Valid, err error) {
-    exist, err := p.Exist()
+type NotExists string
+
+func (e NotExists) Error() (s string) {
+    return fmt.Sprintf("path '%s' does not exist", string(e))
+}
+
+const DoesNotExist NotExists = "" 
+
+func (p Path) MustExist() (err error) {
+    b, err := p.Exist()
     if err != nil {
-        err = errors.WrapFmt(err, "failed to convert Path to a Valid path")
         return
     }
     
-    if !exist {
-        //error
+    if !b {
+        err = NotExists(p.String())
+    }
+    
+    return
+}
+
+func (p Path) IfExists() (optPath *Valid, err error) {
+    v, err := p.ToValid()
+    
+    if err == nil {
+        optPath = &v
+    // file does not exist, optPath is nil, no error is raised
+    } else if errors.Is(err, DoesNotExist) {
+        err = nil
+    }
+    
+    return
+}
+
+func (p Path) ToValid() (vp Valid, err error) {
+    if err = p.MustExist(); err != nil {
+        return
     }
     
     vp.Path = p
@@ -173,7 +202,7 @@ func (b ByModTime) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
 
 func (b ByModTime) Less(i, j int) bool {
-    const check errors.Asserter = "failed to retreive modification time" 
+    const check gerrors.Asserter = "failed to retreive modification time" 
     
     v1 := b[i]
     t1, err := v1.ModTime()

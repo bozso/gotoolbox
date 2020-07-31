@@ -3,10 +3,11 @@ package path
 import (
     "os"
     "bufio"
+    "errors"
     "io/ioutil"
     "encoding/json"
 
-    "github.com/bozso/gotoolbox/errors"
+    gerrors "github.com/bozso/gotoolbox/errors"
 )
 
 type File struct {
@@ -15,6 +16,17 @@ type File struct {
 
 func NewFile(s string) (f File) {
     f.Path = New(s)
+    return
+}
+
+func (f File) IfExists() (opt *ValidFile, err error) {
+    vf, err := f.ToValid()
+    if err == nil {
+        opt = &vf
+    // file does not exist, optPath is nil, no error is raised
+    } else if errors.Is(err, DoesNotExist) {
+        err = nil
+    }
     return
 }
 
@@ -48,7 +60,7 @@ func (f File) ToValid() (vf ValidFile, err error) {
 }
 
 func (vf *ValidFile) Set(s string) (err error) {
-    const name errors.NotEmpty = "valid file path"
+    const name gerrors.NotEmpty = "valid file path"
 
     if err = name.Check(s); err != nil {
         return
@@ -59,7 +71,13 @@ func (vf *ValidFile) Set(s string) (err error) {
 }
 
 func (vf *ValidFile) UnmarshalJSON(b []byte) (err error) {
-    err = vf.Set(trim(b))
+    var v Valid
+    
+    if err = json.Unmarshal(b, &v); err != nil {
+        return
+    }
+    
+    *vf, err = v.ToFile()
     return
 }
 

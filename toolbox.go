@@ -72,7 +72,7 @@ func main() {
     
     c.AddAction("jet", "Redner jet templates", &Jet{})
     
-    err := c.Run(os.Args[1:])
+    err := c.Run()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error: %s\n", err)
         os.Exit(1)
