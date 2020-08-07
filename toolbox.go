@@ -6,39 +6,62 @@ import (
     "log"
     "net/http"
     
-    "github.com/bozso/gotoolbox/path"
-    "github.com/bozso/gotoolbox/cli"
+    "github.com/valyala/fasthttp"
+    "github.com/fasthttp/router"
+
     "github.com/CloudyKit/jet"
+
+    "github.com/bozso/gotoolbox/doc"
+    //"github.com/bozso/gotoolbox/path"
+    "github.com/bozso/gotoolbox/cli"
 )
 
-type Jet struct {
-    isDev bool
-    port string
-    templateDir path.Dir
+type TemplateServer struct {
+    b doc.RenderBuilder
+    errTpl, port string
+    dev bool
 }
 
-func (j *Jet) SetCli(c *cli.Cli) {
-    c.BoolVar(&j.isDev, "dev", false, "Developement mode")
+func (ts *TemplateServer) SetCli(c *cli.Cli) {
+    c.Var(&ts.b.Templates, "templates",
+        "Paths to directory holding html templates")
     
-    c.Var(&j.templateDir, "templates",
-        "Path to directory holding templates")
+    c.StringVar(&ts.errTpl, "errorTemplate", "",
+        "Html template file path inside template directory for reporting errors.")
     
-    c.StringVar(&j.port, "port", "8080", "Localhost port to use")
+    c.StringVar(&ts.port, "port", "8080", "Http port to use.")
+    c.BoolVar(&ts.dev, "dev", false,
+        "Developement mode. If set templates are always reaload and not cached.")    
 }
 
-func (j Jet) Run() (err error) {
-    views := jet.NewHTMLSet(j.templateDir.GetPath())
-    views.SetDevelopmentMode(j.isDev)
+func (ts TemplateServer) Run() (err error) {
+    r := ts.b.Build()
     
-    tr := TemplateRender{views}
+    r.Views.SetDevelopmentMode(ts.dev)
+    //r.Views.SetAbortTemplateOnError(false)
+            
+    errView, err := r.Views.GetTemplate(ts.errTpl)
+    if err != nil {
+        return
+    }
     
-    http.Handle("/", http.FileServer(http.Dir("/")))
-    http.Handle("/render/", http.StripPrefix("/render/", tr))
+    errH := doc.NewErrorHandler(errView)
+    
+    router := router.New()
+    router.GET("/render/{filepath:*}", errH.New(r).Handle)
+    
+    fs := &fasthttp.FS{
+        Root: "/",
+        Compress: true,
+        //PathRewrite: fasthttp.NewPathSlashesStripper(1),
+    }
+    
+    router.GET("/{path:*}", fs.NewRequestHandler())
+    
+    address := fmt.Sprintf(":%s", ts.port)
+    log.Printf("Server starting on adrress: %s", address)
+    err = fasthttp.ListenAndServe(address, router.Handler)
 
-    address := fmt.Sprintf(":%s", j.port)
-    
-    log.Printf("Server starting at port: %s\n", address)
-    err = http.ListenAndServe(address, nil)
     return
 }
 
@@ -70,7 +93,7 @@ func (t TemplateRender) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
     c := cli.New("toolbox", "Useful functions.")
     
-    c.AddAction("jet", "Redner jet templates", &Jet{})
+    c.AddAction("jet-server", "Render jet templates", &TemplateServer{})
     
     err := c.Run()
     if err != nil {
