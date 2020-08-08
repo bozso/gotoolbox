@@ -5,7 +5,8 @@ import (
 )
 
 /*
- * Helper structure for validating float values.
+ * Helper structure for validating float values. It can be used to
+ * check whether a floating point value is in a given range.
  */
 type FloatLimiter struct {
     min, max float64
@@ -16,7 +17,6 @@ func NewFloatLimiter(min, max float64) (f FloatLimiter) {
     return
 }
 
-// 
 func (f FloatLimiter) InRange(val float64) (err error) {
     if f.min <= val && val <= f.max {
         return nil

@@ -6,6 +6,10 @@ import (
 
 type Fraction float64
 
+func (f *Fraction) Validate() (err error) {
+    return ValidateFraction(float64(*f))
+}
+
 func (f *Fraction) UnmarshalJSON(b []byte) (err error) {
     val := float64(0.0)
     
