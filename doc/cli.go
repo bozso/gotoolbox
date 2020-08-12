@@ -7,6 +7,9 @@ import (
     "github.com/valyala/fasthttp"
     "github.com/fasthttp/router"
 
+    "github.com/CloudyKit/jet"
+    "github.com/oxtoacart/bpool"
+
     "github.com/bozso/gotoolbox/cli"
     "github.com/bozso/gotoolbox/path"
 )
@@ -29,7 +32,7 @@ func (p Port) Localhost() (address string) {
 
 type TemplateServer struct {
     port Port
-    builder RenderBuilder
+    Builder RenderBuilder
     errTpl string
     urlPrefix string
     dev bool
@@ -38,7 +41,7 @@ type TemplateServer struct {
 func (ts *TemplateServer) SetCli(c *cli.Cli) {
     ts.port.SetCli(c)
     
-    c.Var(&ts.builder.Templates, "templates",
+    c.Var(&ts.Builder.Templates, "templates",
         "Paths to directory holding html templates")
     
     c.StringVar(&ts.errTpl, "errorTemplate", "",
@@ -51,12 +54,12 @@ func (ts *TemplateServer) SetCli(c *cli.Cli) {
         "Developement mode. If set templates are always reaload and not cached")    
 }
 
-func (ts TemplateServer) Run() (err error) {
-    r := ts.builder.Build()
+func (ts TemplateServer) Setup() (r Render, rout *router.Router, err error) {
+    r = ts.Builder.Build()
     
     r.Views.SetDevelopmentMode(ts.dev)
     //r.Views.SetAbortTemplateOnError(false)
-            
+    
     errView, err := r.Views.GetTemplate(ts.errTpl)
     if err != nil {
         return
@@ -64,26 +67,62 @@ func (ts TemplateServer) Run() (err error) {
     
     errH := NewErrorTemplate(errView)
     
-    router := router.New()
-    router.GET(fmt.Sprintf("/%s/{filepath:*}", ts.urlPrefix),
-        errH.NewHandler(r).Handle)
+    rout = router.New()
+    rout.GET(fmt.Sprintf("/%s/{filepath:*}", ts.urlPrefix),
+        errH.NewHandler(&r).Handle)
     
     fs := &fasthttp.FS{
         Root: "/",
         Compress: true,
     }
     
-    router.GET("/{path:*}", fs.NewRequestHandler())
+    rout.GET("/{path:*}", fs.NewRequestHandler())
+    
+    return
+}
+
+func (ts TemplateServer) Run() (err error) {
+    _, rout, err := ts.Setup()
+    
+    if err != nil {
+        return err
+    }
     
     address := fmt.Sprintf(":%s", ts.port)
     log.Printf("Server starting on adrress: %s", address)
-    err = fasthttp.ListenAndServe(address, router.Handler)
+    err = fasthttp.ListenAndServe(address, rout.Handler)
 
     return
 }
 
 type RenderBuilder struct {
     Templates path.Dir
+    funcs map[string]jet.Func
+}
+
+func NewRenderBuilder() (r RenderBuilder) {
+    r.funcs = make(map[string]jet.Func)
+    return
+}
+
+func (r *RenderBuilder) AddFunc(name string, f jet.Func) {
+    r.funcs[name] = f
+}
+
+func (r RenderBuilder) Build() (rr Render) {
+    v := jet.NewHTMLSet(r.Templates.GetPath())
+    
+    if funcs := r.funcs; funcs != nil {
+        for key, val := range funcs {
+            v.AddGlobalFunc(key, val)
+        }
+    }
+    
+    return Render{
+        Views: v,
+        d: New(),
+        pool: bpool.NewBufferPool(defaultBufferPoolSize),
+    }
 }
 
 type Handler interface {

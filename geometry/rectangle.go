@@ -1,11 +1,17 @@
 package geometry
 
 import (
+    "hash"
 )
 
 type Point2D struct {
     X float64 `json:"x"`
     Y float64 `json:"y"`
+}
+
+// TODO: figure out a proper implementation
+func (p Point2D) Hash(h hash.Hash) {
+    return
 }
 
 type LeftRight2D struct {

@@ -1,6 +1,7 @@
 package geometry
 
 import (
+    "hash"
 )
 
 type Axis int
@@ -29,6 +30,11 @@ type MinMaxFloat struct {
 type Region struct {
     Min Point2D `json:"min"`
     Max Point2D `json:"max"`
+}
+
+func (r Region) Hash(h hash.Hash) {
+    r.Min.Hash(h)
+    r.Max.Hash(h)
 }
 
 func NewRegion(xmin, xmax, ymin, ymax float64) (r Region) {
