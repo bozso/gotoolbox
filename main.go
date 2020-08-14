@@ -11,8 +11,11 @@ import (
 func main() {
     c := cli.New("toolbox", "Useful functions.")
     
-    c.AddAction("jet-server", "Render jet templates",
+    c.AddAction("jet-server", "render jet templates through a web server",
         &doc.TemplateServer{})
+
+    c.AddAction("template", "render jet templates",
+        &doc.TemplateRender{})
     
     err := c.Run()
     if err != nil {

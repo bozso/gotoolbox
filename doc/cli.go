@@ -14,12 +14,25 @@ import (
     "github.com/bozso/gotoolbox/path"
 )
 
+type Mode int
+
+const (
+    Localhost Mode = iota
+)
+
 type Port struct {
     s int
+    mode string
+}
+
+func (p *Port) Default() {
+    p.s = 8080
+    p.mode = "localhost"
 }
 
 func (p *Port) SetCli(c *cli.Cli) {
-    c.IntVar(&p.s, "port", 8080, "Http port to use.")
+    c.IntVar(&p.s, "port", 8080, "http port to use")
+    c.StringVar(&p.mode, "mode", "localhost", "mdoe to use")
 }
 
 func (p Port) Prepend(s string) (address string) {
@@ -30,16 +43,32 @@ func (p Port) Localhost() (address string) {
     return fmt.Sprintf(":%d", p.s)
 }
 
+func (p Port) HostName() (s string) {
+    switch mode := p.mode; mode {
+    case "localhost":
+        s = p.Localhost()
+    default:
+        s = p.Prepend(mode)
+    }
+    return
+}
+
 type TemplateServer struct {
-    port Port
+    Port
     Builder RenderBuilder
     errTpl string
     urlPrefix string
     dev bool
 }
 
+func (t *TemplateServer) Default() {
+    t.Port.Default()
+    t.Builder.Default()
+    t.dev = false
+}
+
 func (ts *TemplateServer) SetCli(c *cli.Cli) {
-    ts.port.SetCli(c)
+    ts.Port.SetCli(c)
     
     c.Var(&ts.Builder.Templates, "templates",
         "Paths to directory holding html templates")
@@ -88,20 +117,30 @@ func (ts TemplateServer) Run() (err error) {
         return err
     }
     
-    address := fmt.Sprintf(":%s", ts.port)
+    address := ts.Port.HostName()
     log.Printf("Server starting on adrress: %s", address)
     err = fasthttp.ListenAndServe(address, rout.Handler)
-
-    return
+    return    
 }
+
+type FuncMap map[string]jet.Func
 
 type RenderBuilder struct {
     Templates path.Dir
-    funcs map[string]jet.Func
+    funcs FuncMap
+}
+
+func (r *RenderBuilder) Default() {
+    r.Templates, _ = path.New(".").ToDir()
+    r.funcs = make(FuncMap)
+}
+
+func (r *RenderBuilder) SetCli(c *cli.Cli) {
+    c.Var(&r.Templates, "templateDir", "directory for searching for templates")
 }
 
 func NewRenderBuilder() (r RenderBuilder) {
-    r.funcs = make(map[string]jet.Func)
+    r.funcs = make(FuncMap)
     return
 }
 
