@@ -5,6 +5,11 @@ import (
     stdHash "hash"
 )
 
+// alias of standard library Hash interface
+type Hash stdHash.Hash
+type Hash32 stdHash.Hash32
+type Hash64 stdHash.Hash64
+
 type ID32 uint32
 type ID64 uint64
 
@@ -76,4 +81,32 @@ func (h *Hasher32) CalcHash(hsb Hashable) (b []byte) {
 func (h *Hasher32) CalcID(hsb Hashable) (id ID32) {
     h.Hash(hsb)
     return ID32(h.Sum32())
+}
+
+type Hasher64 struct {
+    stdHash.Hash64
+}
+
+func NewHasher64(hash64 stdHash.Hash64) (h Hasher64) {
+    h.Hash64 = hash64
+    return
+}
+
+func (h *Hasher64) Hash(hsb Hashable) {
+    h.Reset()
+    h.Append(hsb)
+}
+
+func (h *Hasher64) Append(hsb Hashable) {
+    hsb.Hash(h)
+}
+
+func (h *Hasher64) CalcHash(hsb Hashable) (b []byte) {
+    h.Hash(hsb)
+    return h.Sum(nil)
+}
+
+func (h *Hasher64) CalcID(hsb Hashable) (id ID64) {
+    h.Hash(hsb)
+    return ID64(h.Sum64())
 }
