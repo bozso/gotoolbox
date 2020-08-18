@@ -44,6 +44,6 @@ type NotInRange struct {
 }
 
 func (e NotInRange) Error() (s string) {
-    return fmt.Sprintf("value '%f' not in range of %f - %f",
-        e.val, f.min, f.max)
+    return fmt.Sprintf("value '%f' is not in the range of %f - %f",
+        e.val, e.f.min, e.f.max)
 }

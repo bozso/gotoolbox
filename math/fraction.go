@@ -1,10 +1,15 @@
 package math
 
 import (
+    "fmt"
     "encoding/json"
 )
 
 type Fraction float64
+
+func (f Fraction) String() (s string) {
+    return fmt.Sprintf("%f", float64(f))
+}
 
 func (f *Fraction) Validate() (err error) {
     return ValidateFraction(float64(*f))

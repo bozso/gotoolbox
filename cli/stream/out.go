@@ -23,7 +23,7 @@ func DefaultOut() OutFile {
 }
 
 func (o *OutFile) Set(s string) (err error) {
-    f := path.NewFile(s)
+    f := path.New(s).ToFile()
     
     file, err := f.Create()
     if err != nil {

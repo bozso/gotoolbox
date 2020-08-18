@@ -6,17 +6,10 @@ import (
     "errors"
     "io/ioutil"
     "encoding/json"
-
-    gerrors "github.com/bozso/gotoolbox/errors"
 )
 
 type File struct {
     Path
-}
-
-func NewFile(s string) (f File) {
-    f.Path = New(s)
-    return
 }
 
 func (f File) IfExists() (opt *ValidFile, err error) {
@@ -27,11 +20,6 @@ func (f File) IfExists() (opt *ValidFile, err error) {
     } else if errors.Is(err, DoesNotExist) {
         err = nil
     }
-    return
-}
-
-func (f *File) Set(s string) (err error) {
-    *f, err = NewFile(s), nil
     return
 }
 
@@ -56,33 +44,6 @@ func (f File) ToValid() (vf ValidFile, err error) {
     }
     
     vf, err = v.ToFile()
-    return
-}
-
-func (vf *ValidFile) Set(s string) (err error) {
-    const name gerrors.NotEmpty = "valid file path"
-
-    if err = name.Check(s); err != nil {
-        return
-    }
-    
-    *vf, err = NewFile(s).ToValid()
-    return
-}
-
-func (vf *ValidFile) UnmarshalJSON(b []byte) (err error) {
-    var v Valid
-    
-    if err = json.Unmarshal(b, &v); err != nil {
-        return
-    }
-    
-    *vf, err = v.ToFile()
-    return
-}
-
-func (vf ValidFile) ToPath() (v Valid) {
-    v.Path = vf.Path
     return
 }
 

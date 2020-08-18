@@ -4,25 +4,23 @@ import (
     "fmt"
 )
 
+type ConvertFailLabel string
+
+func (c ConvertFailLabel) New() (cf ConvertFail) {
+    cf.name = string(c)
+    return
+}
+
+func ConversionFailure(str fmt.Stringer) (cf ConvertFail) {
+    cf.name = str.String()
+    return
+}
+
 type ConvertFail struct {
-    name fmt.Stringer
-}
-
-func NewConvertFail(name fmt.Stringer) (c ConvertFail) {
-    c.name = name
-    return
-}
-
-func GenerateFails(names ...fmt.Stringer) (fails []ConvertFail) {
-    fails = make([]ConvertFail, 0, len(names))
-    
-    for ii, name := range names {
-        fails[ii] = NewConvertFail(name)
-    }
-    return
+    name string
 }
 
 func (c ConvertFail) Error() (s string) {
     return fmt.Sprintf("failed to convert database entity to %s",
-        c.name.String())
+        c.name)
 }

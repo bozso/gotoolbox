@@ -72,3 +72,26 @@ func (op dirOperation) Fmt(p Path) (s string) {
     
     return 
 }
+
+type EmptyDir struct {
+    Dir
+}
+
+func (e *EmptyDir) SetPath(p Path) {
+    e.Dir.Path = p
+}
+
+func (_ EmptyDir) Create(p Path) (err error) {
+    _, err = p.Mkdir()
+    return
+}
+
+func (e *EmptyDir) Set(s string) (err error) {
+    err = CreateIf(e, s)
+    return
+}
+
+func (e *EmptyDir) UnmarshalJSON(b []byte) (err error) {
+    err = e.Set(trim(b))
+    return
+}

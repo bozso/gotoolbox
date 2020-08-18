@@ -28,6 +28,11 @@ func New(p string) Path {
     return Path{p}
 } 
 
+func (p *Path) Set(s string) (err error) {
+    *p = New(s)
+    return
+}
+
 /*
  * Make all structs that embedd Path trivially convertable back to Path.
  */
@@ -118,7 +123,7 @@ func (p Path) Create() (of *os.File, err error) {
         err = p.Fail(OpCreate, err)
     }
     
-    return 
+    return
 }
 
 func (p Path) Exist() (b bool, err error) {
@@ -215,3 +220,26 @@ func (b ByModTime) Less(i, j int) bool {
     
     return t1.Before(t2)
 }
+
+type Creatable interface {
+    SetPath(Path)
+    Create(Path) error
+}
+
+func CreateIf(create Creatable, s string) (err error) {
+    p := New(s)
+
+    exists, err := p.Exist()
+    if err != nil {
+        return
+    }
+    
+    if !exists {
+        if err = create.Create(p); err != nil {
+            return
+        }
+    }
+    
+    create.SetPath(p)
+    return
+} 
