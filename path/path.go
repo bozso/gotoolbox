@@ -2,6 +2,7 @@ package path
 
 import (
     "fmt"
+    "hash"
     "os"
     "strings"
     "bytes"
@@ -38,6 +39,10 @@ func (p *Path) Set(s string) (err error) {
  */
 func (p Path) AsPath() (rp Path) {
     return p
+}
+
+func (p Path) Hash(h hash.Hash) {
+    fmt.Fprintf(h, "%s", p)
 }
 
 func Joined(args ...string) Path {

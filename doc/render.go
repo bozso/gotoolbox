@@ -8,18 +8,11 @@ import (
 
 const defaultBufferPoolSize = 16
 
+
 type Render struct {
     d Doc
     Views *jet.Set
     pool *bpool.BufferPool
-}
-
-func (r RenderBuilder) Build() (rr Render) {
-    return Render{
-        Views: jet.NewHTMLSet(r.Templates.GetPath()),
-        d: New(),
-        pool: bpool.NewBufferPool(defaultBufferPoolSize),
-    }
 }
 
 func (r Render) Handle(ctx *fasthttp.RequestCtx) (err error) {

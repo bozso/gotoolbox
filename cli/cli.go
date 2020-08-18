@@ -51,7 +51,21 @@ func New(name, desc string) (c Cli) {
     return c
 }
 
+type Defaulter interface {
+    Default()
+}
+
+type Setuper interface {
+    Setup() error
+}
+
 func (c *Cli) AddAction(name, desc string, act Action) {
+    def, ok := act.(Defaulter)
+    
+    if ok {
+        def.Default()
+    }
+    
     c.subcommands[name] = subcommand{
         action: act,
         c: New(name, desc),
@@ -113,6 +127,14 @@ func (c Cli) RunWithArgs(args []string) (err error) {
     
     if err != nil {
         return
+    }
+    
+    setup, ok := act.(Setuper)
+
+    if ok {
+        if err = setup.Setup(); err != nil {
+            return
+        }
     }
     
     return act.Run()

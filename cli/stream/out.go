@@ -43,14 +43,14 @@ type Out struct {
     OutFile
 }
 
+func (o *Out) Default() {
+    o.name, o.WriteCloser = stdoutName, os.Stdout
+}
+
 func (o *Out) Set(s string) (err error) {
-    println("asd")
-    println(s)
-    if l := len(s); l == 0 {
-        o.name, o.WriteCloser = stdoutName, os.Stdout
-        return
+    if len(s) != 0 {
+        err = o.OutFile.Set(s)
     }
     
-    err = o.OutFile.Set(s)
     return
 }
