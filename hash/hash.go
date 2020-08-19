@@ -55,27 +55,38 @@ func NewHashFloat64(val float64) (h HashFloat64) {
     }
 }
 
-type Hasher32 struct {
-    stdHash.Hash32
+type Hasher struct {
+    hasher Hash
 }
 
-func NewHasher32(hash32 stdHash.Hash32) (h Hasher32) {
-    h.Hash32 = hash32
+func New(hasher Hash) (h Hasher) {
+    h.hasher = hasher
     return
 }
 
-func (h *Hasher32) Hash(hsb Hashable) {
-    h.Reset()
+func (h *Hasher) Append(hsb Hashable) {
+    hsb.Hash(h.hasher)
+}
+
+func (h *Hasher) Hash(hsb Hashable) {
+    h.hasher.Reset()
     h.Append(hsb)
 }
 
-func (h *Hasher32) Append(hsb Hashable) {
-    hsb.Hash(h)
+func (h *Hasher) CalcHash(hsb Hashable) (b []byte) {
+    h.Hash(hsb)
+    return h.hasher.Sum(nil)
 }
 
-func (h *Hasher32) CalcHash(hsb Hashable) (b []byte) {
-    h.Hash(hsb)
-    return h.Sum(nil)
+type Hasher32 struct {
+    Hasher
+    stdHash.Hash32
+}
+
+func New32(hash32 stdHash.Hash32) (h Hasher32) {
+    h.Hasher = New(hash32)
+    h.Hash32 = hash32
+    return
 }
 
 func (h *Hasher32) CalcID(hsb Hashable) (id ID32) {
@@ -84,26 +95,14 @@ func (h *Hasher32) CalcID(hsb Hashable) (id ID32) {
 }
 
 type Hasher64 struct {
+    Hasher
     stdHash.Hash64
 }
 
-func NewHasher64(hash64 stdHash.Hash64) (h Hasher64) {
+func New64(hash64 stdHash.Hash64) (h Hasher64) {
+    h.Hasher = New(hash64)
     h.Hash64 = hash64
     return
-}
-
-func (h *Hasher64) Hash(hsb Hashable) {
-    h.Reset()
-    h.Append(hsb)
-}
-
-func (h *Hasher64) Append(hsb Hashable) {
-    hsb.Hash(h)
-}
-
-func (h *Hasher64) CalcHash(hsb Hashable) (b []byte) {
-    h.Hash(hsb)
-    return h.Sum(nil)
 }
 
 func (h *Hasher64) CalcID(hsb Hashable) (id ID64) {
