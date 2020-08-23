@@ -32,6 +32,38 @@ func (l Loader) Retreive(args ...string) (p Path) {
     return
 }
 
+type Bytes struct {
+    Status
+    content []byte
+}
+
+func (l Loader) Image(args ...string) (p Path) {
+    if p.From(l) {
+        return
+    }
+    
+    p = l.Retreive(args...)
+    if p.Err != nil {
+        return
+    }
+    
+    f, err := p.Valid.ToFile()
+    if err != nil {
+        p.Err = err
+        return
+    }
+    
+    s, err := Encode(f)
+    if err != nil {
+        p.Err = err
+        return
+    }
+
+    p.Valid, _ = path.New(s).ToValid()
+    
+    return
+}
+
 type Path struct {
     Status
     path.Valid

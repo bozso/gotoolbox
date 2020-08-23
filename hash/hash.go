@@ -2,35 +2,41 @@ package hash
 
 import (
     "math"
+    "encoding/binary"
     stdHash "hash"
 )
 
-// alias of standard library Hash interface
+// alias to the standard library Hash interface
 type Hash stdHash.Hash
 type Hash32 stdHash.Hash32
 type Hash64 stdHash.Hash64
 
+// alias for return types of the Sum functions
 type ID32 uint32
 type ID64 uint64
 
+// A type that can be hashed using the Hash interface
 type Hashable interface {
     Hash(h stdHash.Hash)
 }
 
-type HashFloat64 struct {
+type Float64 struct {
     mantissa uint64
     exponent int16
     sign int8
 }
 
-func (hf HashFloat64) Hash(h stdHash.Hash) {
+func (f Float64) Hash(h stdHash.Hash) {
+    binary.Write(h, binary.LittleEndian, f.mantissa)
+    binary.Write(h, binary.LittleEndian, f.exponent)
+    binary.Write(h, binary.LittleEndian, f.sign)
 }
 
-func HashF64(val float64, h stdHash.Hash) {
-    NewHashFloat64(val).Hash(h)
+func HashFloat64(val float64, h stdHash.Hash) {
+    NewFloat64(val).Hash(h)
 }
 
-func NewHashFloat64(val float64) (h HashFloat64) {
+func NewFloat64(val float64) (h Float64) {
     bits := math.Float64bits(val)
     sign := int8(-1)
     
@@ -48,7 +54,7 @@ func NewHashFloat64(val float64) (h HashFloat64) {
 
     exponent -= 1023 + 52;
     
-    return HashFloat64{
+    return Float64{
         exponent: exponent,
         sign: sign,
         mantissa: mantissa,

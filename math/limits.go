@@ -17,12 +17,35 @@ func NewFloatLimiter(min, max float64) (f FloatLimiter) {
     return
 }
 
-func (f FloatLimiter) InRange(val float64) (err error) {
+func (f FloatLimiter) InRangeErr(val float64) (err error) {
+    if !f.InRange() {
+        err = NotInRange{f:f, val: val}
+    }
+    return
+}
+
+func (f FloatLimiter) InRange(val float64) (b bool) {
     if f.min <= val && val <= f.max {
-        return nil
+        b = true
     }
     
-    return NotInRange{f:f, val: val}
+    return
+}
+
+func (f FloatLimiter) Limit(val float64) (fl float64) {
+    if val <= f.min {
+        fl = f.min
+        return
+    }
+
+    if val >= f.max {
+        fl = f.max
+        return
+    }
+}
+
+func (f FloatLimiter) LimitTo(val *float64) {
+    *val = f.Limit(*val)
 }
 
 var (

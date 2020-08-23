@@ -6,6 +6,9 @@ tasks:
   vet:
     cmds:
       - go vet
+  test:
+    cmds:
+      - go test ./hash
   build:
     cmds:
       - go install

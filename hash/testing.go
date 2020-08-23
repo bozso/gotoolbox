@@ -66,9 +66,14 @@ func (t Tester) SameHash(one, two Hashable) (err error) {
     return t.SameHashPair(HashablePair{one, two})
 }
 
-func (t Tester) TestSame(hashables []Hashable) (err error) {
+func (t Tester) TestSame(hashable Hashable) (err error) {
+    err = t.SameHash(hashable, hashable)
+    return
+}
+
+func (t Tester) TestSames(hashables []Hashable) (err error) {
     for _, hashable := range hashables {
-        if err = t.SameHash(hashable, hashable); err != nil {
+        if err = t.TestSame(hashable); err != nil {
             break
         }
     }
