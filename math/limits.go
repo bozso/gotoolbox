@@ -35,13 +35,12 @@ func (f FloatLimiter) InRange(val float64) (b bool) {
 func (f FloatLimiter) Limit(val float64) (fl float64) {
     if val <= f.min {
         fl = f.min
-        return
-    }
-
-    if val >= f.max {
+    } else if val >= f.max {
         fl = f.max
-        return
+    } else {
+        fl = val
     }
+    return
 }
 
 func (f FloatLimiter) LimitTo(val *float64) {
