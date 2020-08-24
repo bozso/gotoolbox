@@ -3,6 +3,7 @@ package hash
 import (
     "testing"
     
+    "crypto/md5"
     "github.com/bozso/gotoolbox/rand"
 )
 
@@ -60,6 +61,8 @@ func TestFloatHash(t *testing.T) {
             Std: 1.12,
         },
     }
+    
+    tester := NewTester(New(md5.New()))
     
     for _, conf := range configs {
         tc := NewTestCase(conf, tester)

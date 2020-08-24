@@ -53,7 +53,6 @@ func NewTester(hasher Hasher) (t Tester) {
 }
 
 func (t Tester) SameHashPair(pair HashablePair) (err error) {
-    
     out := pair.Hash(t.hasher)
     
     if !out.Equals() {
