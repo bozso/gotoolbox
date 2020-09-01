@@ -4,32 +4,81 @@ import (
     "github.com/bozso/gotoolbox/path"
 )
 
+type Infile struct {
+    validFile path.ValidFile
+}
+
+type OutFile struct {
+    path.File
+}
+
+func (of OutFile) NeedsUpdate(infile path.ValidFile) (b bool, err error) {
+    v, err := of.ToValid()
+    
+    if err != nil {
+        var ne path.NotExists
+        if errors.As(err, &ne) {
+            b = true
+        }
+
+        return
+    }
+    
+    b, err = v.YoungerThan(infile)
+    return
+}
+
+type OutFiles struct {
+    Files []OutFile
+}
+
+func (of OutFiles) NeedsUpdate(infile path.ValidFile) (b bool, err error) {
+    for ii, _ := range of.Files {
+        b, err = of.Files[ii].NeedsUpdate(infile)
+        if err != nil {
+            return
+        }
+        
+        if b {
+            break
+        }
+    }
+    return
+}
+
 type Meta struct {
     Infiles []path.ValidFile
     Outfiles []path.File    
 }
 
+type UpdateChecker interface {
+    NeedsUpdate(infile path.ValidFile) (b bool, err error)
+}
+
 type Task interface {
-    GetMeta() Meta
+    Checker() UpdateChecker
+    Inputs() []path.ValidFile
     Run() error
 }
 
-func NeedsToRun(t Task) (b bool, err error) {
-    b = true
-    m := t.GetMeta()
+func Run(t Task) (err error) {
+    checker := t.Checker()
     
-    for ii, _ := range m.Outfiles {
-        exists, err := m.Outfiles[ii].Exist()
+    var update bool
+    for ins := t.Inputs(); ii, _ := range ins {
+        update, err = checker.NeedsUpdate(ins[ii])
+        
         if err != nil {
-            return b, err
+            return
         }
         
-        if !exists {
-            return true, nil
+        if update {
+            err = t.Run()
+            if err != nil {
+                break
+            }
         }
     }
     
-    for ii, _ := range m.Infiles {
-        
-    } 
+    return
 }
