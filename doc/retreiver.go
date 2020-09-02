@@ -10,7 +10,7 @@ type Loader struct {
 }
 
 func (_ Doc) NewFileLoader(args ...string) (l Loader) {
-    l.root, l.Err = path.Joined(args...).ToDir()
+    l.root, l.Err  = path.Joined(args...).ToDir()
     return
 }
 
@@ -37,30 +37,44 @@ type Bytes struct {
     content []byte
 }
 
-func (l Loader) Image(args ...string) (p Path) {
-    if p.From(l) {
+type LoadEncoder struct {
+    Loader
+    encoder FileEncoder    
+}
+
+func (d Doc) Base64Encoder(args ...string) (le LoadEncoder) {
+    return d.NewFileLoader(args...).WithEncoder(Base64)
+}
+
+func (l Loader) WithEncoder(f FileEncoder) (le LoadEncoder) {
+    le.Loader, le.encoder = l, NoOpEncoder()
+    return
+}
+
+func (le LoadEncoder) Encode(args ...string) (str StringResult) {
+    if str.From(le) {
         return
     }
     
-    p = l.Retreive(args...)
+    p := le.Retreive(args...)
     if p.Err != nil {
         return
     }
     
     f, err := p.Valid.ToFile()
     if err != nil {
-        p.Err = err
+        str.Err = err
         return
     }
     
-    s, err := Encode(f)
+    s, err := le.encoder.EncodeFile(f)
     if err != nil {
         p.Err = err
         return
+    } else {
+        str.s = s
     }
 
-    p.Valid, _ = path.New(s).ToValid()
-    
     return
 }
 
@@ -72,4 +86,13 @@ type Path struct {
 func (p *Path) TryFrom(systemPath path.Path) {
     p.Valid, p.Err = systemPath.ToValid()
     return
+}
+
+type StringResult struct {
+    Status
+    s string
+}
+
+func (str StringResult) String() (s string) {
+    return str.s
 }

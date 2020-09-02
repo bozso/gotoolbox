@@ -79,6 +79,9 @@ func (in Indices) Stop(stop int) (ind Indices) {
 }
 
 func (_ Doc) Indices(stop int) (ind Indices) {
-    ind.stop, ind.start, ind.step = stop, 0, 1
-    return
+    return Indices{
+        stop: stop,
+        start: 0,
+        step: 1,
+    }
 }

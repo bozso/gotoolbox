@@ -46,11 +46,6 @@ func (of OutFiles) NeedsUpdate(infile path.ValidFile) (b bool, err error) {
     return
 }
 
-type Meta struct {
-    Infiles []path.ValidFile
-    Outfiles []path.File    
-}
-
 type UpdateChecker interface {
     NeedsUpdate(infile path.ValidFile) (b bool, err error)
 }
@@ -61,23 +56,28 @@ type Task interface {
     Run() error
 }
 
-func Run(t Task) (err error) {
-    checker := t.Checker()
-    
-    var update bool
+func NeedsUpdate(t Task) (update bool, err error) {
     for ins := t.Inputs(); ii, _ := range ins {
         update, err = checker.NeedsUpdate(ins[ii])
         
-        if err != nil {
-            return
+        if err != nil || update {
+            break
         }
-        
-        if update {
-            err = t.Run()
-            if err != nil {
-                break
-            }
-        }
+    }
+    
+    return
+}
+
+func Run(t Task) (err error) {
+    checker := t.Checker()
+    
+    update, err := NeedsUpdate(t)
+    if err != nil {
+        return
+    }
+    
+    if update {
+        err = t.Run()
     }
     
     return
