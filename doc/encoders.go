@@ -10,6 +10,7 @@ import (
 
 type Encoder interface {
     Encode(dst, src []byte)
+    EncodedLen(n int) int
 }
 
 type FileEncoder interface {
@@ -24,19 +25,20 @@ func EncodeFile(e Encoder, vf path.ValidFile) (b []byte, err error) {
     defer r.Close()
     
     
-    err = EncodeTo(e, r, b)
+    b, err = EncodeTo(e, r)
     return
 }
 
-func EncodeTo(e Encoder, r io.Reader, b []byte) (err error) {
+func EncodeTo(e Encoder, r io.Reader) (b []byte, err error) {
     var buf bytes.Buffer
-    _, err = io.Copy(&buf, r)
+    n, err := io.Copy(&buf, r)
     
     if err != nil {
         return
     }
     
     
+    b = make([]byte, e.EncodedLen(int(n)))
     e.Encode(b, buf.Bytes())
     return    
 }

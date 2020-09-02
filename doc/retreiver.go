@@ -93,6 +93,11 @@ type StringResult struct {
     s string
 }
 
+func OkString(s string) (sr StringResult) {
+    sr.s = s
+    return
+}
+
 func (str StringResult) String() (s string) {
     return str.s
 }

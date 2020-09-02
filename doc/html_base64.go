@@ -18,7 +18,7 @@ func NewHtmlEncoder(enc Encoder) (h HtmlEncoder) {
 }
 
 func (h HtmlEncoder) EncodeFile(vf path.ValidFile) (s string, err error) {
-    ext := vf.Ext()
+    ext := vf.Ext()[1:]
     
     extType, err := ExtensionToType(ext)
     if err != nil {
