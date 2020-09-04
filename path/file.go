@@ -37,6 +37,16 @@ type ValidFile struct {
     Valid
 }
 
+func (p Path) ToValidFile() (vf ValidFile, err error) {
+    v, err := p.ToValid()
+    if err != nil {
+        return
+    }
+    
+    vf, err = v.ToFile()
+    return
+}
+
 func (f File) ToValid() (vf ValidFile, err error) {
     v, err := f.Path.ToValid()
     if err != nil {

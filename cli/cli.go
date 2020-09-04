@@ -142,7 +142,7 @@ func (c Cli) RunWithArgs(args []string) (err error) {
 
 type RunFn func() error
 
-func (r RunFn) Run() error {
+func (r RunFn) Run() (err error) {
     return r()
 }
 
