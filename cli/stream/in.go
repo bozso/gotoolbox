@@ -15,6 +15,11 @@ type InFile struct {
     io.ReadCloser
 }
 
+func (in *InFile) UnmarshalJSON(b []byte) (err error) {
+    err = in.Set(string(b))
+    return
+}
+
 func (in *InFile) Set(s string) (err error) {
     f := path.New(s).ToFile()
     vf, err := f.ToValid()
@@ -53,5 +58,10 @@ func (in *In) Set(s string) (err error) {
     }
     
     err = in.InFile.Set(s)
+    return
+}
+
+func (in *In) UnmarshalJSON(b []byte) (err error) {
+    err = in.Set(string(b))
     return
 }

@@ -22,6 +22,11 @@ func DefaultOut() OutFile {
     }
 }
 
+func (o *OutFile) UnmarshalJSON(b []byte) (err error) {
+    err = o.Set(string(b))
+    return
+}
+
 func (o *OutFile) Set(s string) (err error) {
     f := path.New(s).ToFile()
     
@@ -52,5 +57,9 @@ func (o *Out) Set(s string) (err error) {
         err = o.OutFile.Set(s)
     }
     
+    return
+}
+func (o *Out) UnmarshalJSON(b []byte) (err error) {
+    err = o.Set(string(b))
     return
 }
