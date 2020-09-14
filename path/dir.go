@@ -10,6 +10,11 @@ type Dir struct {
     Valid
 }
 
+func (d Dir) Remove() (err error) {
+    err = os.RemoveAll(d.GetPath())
+    return
+}
+
 func (p Path) ToDir() (d Dir, err error) {
     d.Valid, err = p.ToValid()
     if err != nil {
@@ -71,6 +76,21 @@ func (op dirOperation) Fmt(p Path) (s string) {
     }    
     
     return 
+}
+
+func TempDirIn(dir, prefix string) (d Dir, err error) {
+    dirPath, err := ioutil.TempDir(dir, prefix)
+    if err != nil {
+        return
+    }
+    
+    d, err = New(dirPath).ToDir()
+    return
+}
+
+func TempDir(prefix string) (d Dir, err error) {
+    d, err = TempDirIn("", prefix)
+    return
 }
 
 type EmptyDir struct {

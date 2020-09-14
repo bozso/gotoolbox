@@ -8,7 +8,7 @@ tasks:
       - go vet
   test:
     cmds:
-      - go test ./hash
+      - go test ./hash ./path
   build:
     cmds:
       - go install
