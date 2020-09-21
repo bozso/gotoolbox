@@ -11,18 +11,14 @@ type Command struct {
     debug bool
 }
 
-func New(cmd string) Command {
-    return Command{
-        cmd: cmd,
-        debug: false,
-    }
+func New(cmd string) (c Command) {
+    c.cmd = cmd
+    return
 }
 
-func (c Command) Debug() Command {
-    return Command{
-        cmd: c.cmd,
-        debug: true,
-    }
+func (c Command) Debug() (cc Command) {
+    cc.cmd, c.debug = c.cmd, true
+    return
 }
 
 func (c Command) Call(args ...interface{}) (s string, err error) {
@@ -36,9 +32,6 @@ func (c Command) Call(args ...interface{}) (s string, err error) {
 }
 
 func (c Command) CallWithArgs(args ...string) (s string, err error) {
-    // fmt.Printf("%s %s\n", cmd, str.Join(arg, " "))
-    // os.Exit(0)
-    
     if c.debug {
         fmt.Printf("Debug mode: command to run: '%s %s'\n", c.cmd,
             strings.Join(args, " "))
@@ -57,8 +50,6 @@ func (c Command) CallWithArgs(args ...string) (s string, err error) {
     return
 }
 
-const errorMessage = "Command '%s %s' failed! Error: '%s'\nOutput of command is: %v"
-
 type Fail struct {
     cmd, out string
     args []string
@@ -66,6 +57,8 @@ type Fail struct {
 }
 
 func (f Fail) Error() string {
+    const errorMessage = "Command '%s %s' failed! Error: '%s'\nOutput of command is: %v"
+    
     return fmt.Sprintf(errorMessage,
         f.cmd, strings.Join(f.args, " "), f.err, f.out)
 }
