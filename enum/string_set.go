@@ -25,24 +25,12 @@ func (ss StringSet) Join(separator string) (s string) {
     return buf.String()
 }
 
+func (ss StringSet) EnumType(name string) (t Type) {
+    t.name, t.available = name, ss
+    return
+}
+
 func (ss StringSet) Contains(s string) (b bool) {
     _, b = ss[s]
     return
-}
-
-type Type string
-
-func (t Type) UnknownElement(set StringSet, value string) (u UnknownElement) {
-    u.EnumType, u.Value, u.Set = string(t), value, set
-    return
-}
-
-type UnknownElement struct {
-    Set StringSet
-    Value, EnumType string
-}
-
-func (u UnknownElement) Error() (s string) {
-    return fmt.Sprintf("unknown value '%s' for %s, choose from %s", u.Value,
-        u.EnumType, u.Set.Join(","))
 }
