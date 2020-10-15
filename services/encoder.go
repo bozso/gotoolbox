@@ -34,8 +34,7 @@ const (
     Base64
 )
 
-const encoderType enum.Type = "EncoderType"
-var encoderTypes = enum.NewStringSet("Base32", "Base64")
+var encoderType = enum.NewStringSet("Base32", "Base64").EnumType("EncoderType")
 
 func (et EncoderType) String() (s string) {
     switch et {
@@ -56,7 +55,7 @@ func (et *EncoderType) Set(s string) (err error) {
     case "base64":
         *et = Base64
     default:
-        err = encoderType.UnknownElement(encoderTypes, s)
+        err = encoderType.UnknownElement(s)
     }
     
     return

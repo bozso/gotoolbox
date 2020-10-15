@@ -4,7 +4,7 @@ import (
     "testing"
     
     "crypto/md5"
-    "github.com/bozso/gotoolbox/rand"
+    "github.com/bozso/emath/rand"
 )
 
 type TestCase struct {
@@ -12,8 +12,8 @@ type TestCase struct {
     tester Tester
 }
 
-func NewTestCase(config rand.Config, t Tester) (tc TestCase) {
-    tc.rng, tc.tester = config.New(src), t
+func NewTestCase(scale rand.Scale, t Tester) (tc TestCase) {
+    tc.rng, tc.tester = scale.New(src), t
     return
 }
 
@@ -50,13 +50,13 @@ const (
 var src = rand.NewSource(seed)
 
 func TestFloatHash(t *testing.T) {
-    configs := [...]rand.Config{
-        rand.Config{
+    configs := [...]rand.Scale{
+        rand.Scale{
             Mean: 12.0,
             Std: 21.0,
         },
-        rand.DefaultConfig(),
-        rand.Config{
+        rand.DefaultScale(),
+        rand.Scale{
             Mean: -100.0,
             Std: 1.12,
         },

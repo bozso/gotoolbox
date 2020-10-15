@@ -29,6 +29,10 @@ func New(p string) Path {
     return Path{p}
 } 
 
+func (p Path) Into(f From) (err error) {
+    return f.FromPath(p)
+}
+
 func (p *Path) Set(s string) (err error) {
     *p = New(s)
     return
@@ -55,22 +59,27 @@ func (p Path) Join(args ...string) Path {
     return Joined(append(ss, args...)...)
 }
 
+
+
+func (p Path) IGlob() (it Iterable, err error) {
+    v, err := p.Glob()
+    if err != nil {
+        return
+    }
+    it = newValids(v)
+    return 
+}
+
 func (p Path) Glob() (v []Valid, err error) {
     paths, err := filepath.Glob(p.GetPath())
     if err != nil {
         return
     }
     
-    v = make([]Valid, 0)
+    v = make([]Valid, len(paths))
     
-    for _, p := range paths {
-        pp, Err := New(p).ToValid()
-        if Err != nil {
-            err = Err
-            return
-        }
-        
-        v = append(v, pp)
+    for ii, _ := range paths {
+        v[ii].Path = New(paths[ii])
     }
     
     return

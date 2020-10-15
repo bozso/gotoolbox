@@ -50,15 +50,27 @@ func NewTempFiles(dir, prefix string, rng rand.Rand) (t TempFiles, err error) {
     return
 }
 
-func (t *TempFiles) Get() (vf *ValidFile, err error) {
-    t.mutex.RLock()
+func (t *TempFiles) Search() (vf *ValidFile, found bool) {
+    t.mutex.Lock()
+    defer t.mutex.Unlock()
+    
     for file, inUse := range t.files {
         if !inUse {
-            vf, t.files[file] = file, InUse
-            t.mutex.RUnlock()
-            return
+            vf, t.files[file], found = file, InUse, true
+            break
         }
     }
+    
+    return
+}
+
+func (t *TempFiles) Get() (vf *ValidFile, err error) {
+    vf, found := t.Search()
+    
+    if found {
+        return
+    }
+    
     
     vf, err = t.NewFile()
     return
@@ -102,7 +114,9 @@ func (t *TempFiles) NewFile() (vf *ValidFile, err error) {
 }
 
 func (t *TempFiles) Put(vf *ValidFile) {
+    t.mutex.Lock()
     t.files[vf] = NotInUse
+    t.mutex.Unlock()
 }
 
 func (t *TempFiles) Remove() (err error) {

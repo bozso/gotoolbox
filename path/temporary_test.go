@@ -4,6 +4,8 @@ import (
     "testing"
 )
 
+const nTries = 1000
+
 func testTempFiles(nTries int) (err error) {
     t, err := NewDefaultTempFiles()
     if err != nil {
@@ -22,10 +24,9 @@ func testTempFiles(nTries int) (err error) {
         
         t.Put(vf)
     }
-    return
+    return t.Remove()
 }
 
-const nTries = 1000
 
 func TestTempFiles(t *testing.T) {
     if err := testTempFiles(nTries); err != nil {
