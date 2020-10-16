@@ -66,6 +66,13 @@ func NewTempFiles(dir, prefix string, rng rand.Rand) (t TempFiles, err error) {
     return
 }
 
+// Convert it to mutex guarded temporary file manager.
+func (t TempFiles) Mutexed() (m MutexTempFiles) {
+    return MutexTempFiles{
+        tempFiles: t,
+    }
+}
+
 /*
 Search for a valid file that is not in use managed by the receiver.
 The second return argument marks whether a file that is not in use was
@@ -162,6 +169,7 @@ func (e CreateFail) Unwrap() (err error) {
     return e.err
 }
 
+// Concurrent safe TempFiles, guarded by mutex
 type MutexTempFiles struct {
     // The wrapped struct.
     tempFiles TempFiles
@@ -169,6 +177,7 @@ type MutexTempFiles struct {
     mutex sync.Mutex
 }
 
+// Concurrent safe Get
 func (m *MutexTempFiles) Get() (vf *ValidFile, err error) {
     m.mutex.Lock()
     vf, err = m.tempFiles.Get()
@@ -176,6 +185,7 @@ func (m *MutexTempFiles) Get() (vf *ValidFile, err error) {
     return
 }
 
+// Concurrent safe Search
 func (m *MutexTempFiles) Search() (vf *ValidFile, found bool) {
     m.mutex.Lock()
     vf, found = m.tempFiles.Search()
@@ -183,6 +193,7 @@ func (m *MutexTempFiles) Search() (vf *ValidFile, found bool) {
     return
 }
 
+// Concurrent safe NewFile
 func (m *MutexTempFiles) NewFile() (vf *ValidFile, err error) {
     m.mutex.Lock()
     vf, err = m.tempFiles.NewFile()
@@ -190,6 +201,7 @@ func (m *MutexTempFiles) NewFile() (vf *ValidFile, err error) {
     return
 }
 
+// Concurrent safe Put
 func (m *MutexTempFiles) Put(vf *ValidFile) {
     m.mutex.Lock()
     m.tempFiles.Put(vf)
