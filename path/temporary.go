@@ -17,21 +17,19 @@ const (
 type TempFileSet map[*ValidFile]bool
 
 // The main struct for managing temporary files in a single directory.
-//
-// TODO(bozso): Implement the mutexed version as a seperate struct?
 type TempFiles struct {
     // Path to the root directory
     RootDir Dir
     // file set pointing to existing files
     files TempFileSet
-    // mutex for protecting the locking the set
-    mutex sync.RWMutex
     // random number generator for generating random file names
     rand.Rand
 }
 
-/* Set up temporary file management for the specified directory
- with the given randum number generator. */
+/*
+Set up temporary file management for the specified directory
+with the given randum number generator.
+*/
 func TempFilesFromDir(rootDir Dir, rng rand.Rand) (t TempFiles) {
     return TempFiles{
         RootDir: rootDir,
@@ -70,13 +68,10 @@ func NewTempFiles(dir, prefix string, rng rand.Rand) (t TempFiles, err error) {
 
 /*
 Search for a valid file that is not in use managed by the receiver.
-It locks the receiver's fileset until the end of the operation. The
-second return argument marks whether a file that is not in use was
+The second return argument marks whether a file that is not in use was
 found.
 */
 func (t *TempFiles) Search() (vf *ValidFile, found bool) {
-    t.mutex.Lock()
-    
     for file, inUse := range t.files {
         if !inUse {
             vf, t.files[file], found = file, InUse, true
@@ -84,15 +79,14 @@ func (t *TempFiles) Search() (vf *ValidFile, found bool) {
         }
     }
     
-    t.mutex.Unlock()
     return
 }
 
 /*
-Retreives a new temporary file to be used. Locks the reciever until
-the end of the operation. First it searches for a file that is not in
-use. If no such file is found a new file will be created and registered
-in the receivers fileset.
+Retreives a new temporary file to be used.
+First it searches for a file that is not in use. If no such file is
+found a new file will be created and registered in the receivers
+fileset.
 */
 func (t *TempFiles) Get() (vf *ValidFile, err error) {
     vf, found := t.Search()
@@ -106,14 +100,10 @@ func (t *TempFiles) Get() (vf *ValidFile, err error) {
 }
 
 /*
-Creates a new file to be used in the temporary file directory. Locks
-the receiver until the end of the operation. Returns error if file
-creation has failed.
+Creates a new file to be used in the temporary file directory. Returns
+error if file creation has failed.
 */
 func (t *TempFiles) NewFile() (vf *ValidFile, err error) {
-    t.mutex.Lock()
-    defer t.mutex.Unlock()
-    
     file := t.RootDir.Join(fmt.Sprintf("%d", t.Rand.Int()))
     
     _, err = file.Create()
@@ -135,8 +125,7 @@ func (t *TempFiles) NewFile() (vf *ValidFile, err error) {
 
 /*
 Signals to the receiver that the temporary file is no longer in use.
-Locks the receiver until the end of the operation. Should be used in
-conjunction with Get.
+Should be used in conjunction with Get.
 
     var t = NewDefaultTempFiles()
     f, err := t.Get()
@@ -147,9 +136,7 @@ conjunction with Get.
     // use f
 */
 func (t *TempFiles) Put(vf *ValidFile) {
-    t.mutex.Lock()
     t.files[vf] = NotInUse
-    t.mutex.Unlock()
 }
 
 /*
@@ -173,4 +160,39 @@ func (e CreateFail) Error() (s string) {
 
 func (e CreateFail) Unwrap() (err error) {
     return e.err
+}
+
+type MutexTempFiles struct {
+    // The wrapped struct.
+    tempFiles TempFiles
+    // mutex for protecting the locking the set
+    mutex sync.Mutex
+}
+
+func (m *MutexTempFiles) Get() (vf *ValidFile, err error) {
+    m.mutex.Lock()
+    vf, err = m.tempFiles.Get()
+    m.mutex.Unlock()
+    return
+}
+
+func (m *MutexTempFiles) Search() (vf *ValidFile, found bool) {
+    m.mutex.Lock()
+    vf, found = m.tempFiles.Search()
+    m.mutex.Unlock()
+    return
+}
+
+func (m *MutexTempFiles) NewFile() (vf *ValidFile, err error) {
+    m.mutex.Lock()
+    vf, err = m.tempFiles.NewFile()
+    m.mutex.Unlock()
+    return
+}
+
+func (m *MutexTempFiles) Put(vf *ValidFile) {
+    m.mutex.Lock()
+    m.tempFiles.Put(vf)
+    m.mutex.Unlock()
+    return
 }
