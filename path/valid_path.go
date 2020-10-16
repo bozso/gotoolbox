@@ -62,7 +62,7 @@ func (vp Valid) ModTime() (t time.Time, err error) {
     return 
 }
 
-func (v Valid) OlderThen(vp Valid) (b bool, err error) {
+func (v Valid) OlderThan(vp Valid) (b bool, err error) {
     t1, err := v.ModTime()
     if err != nil {
         return
@@ -77,8 +77,8 @@ func (v Valid) OlderThen(vp Valid) (b bool, err error) {
     return
 }
 
-func (v Valid) YoungerThen(vp Valid) (b bool, err error) {
-    b, err = v.OlderThen(vp)
+func (v Valid) YoungerThan(vp Valid) (b bool, err error) {
+    b, err = v.OlderThan(vp)
     b = !b
     return
 }
