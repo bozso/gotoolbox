@@ -4,7 +4,6 @@ import (
     "sync"
     
     "github.com/bozso/gotoolbox/hash"
-    "github.com/bozso/gotoolbox/command"
     
     tth "github.com/buildkite/terminal-to-html/v3"
 )
@@ -42,7 +41,19 @@ func (c *Cache) Render(b []byte) (out []byte) {
     return
 }
 
-type MutexedCache struct {
+func (c Cache) WithMutex() (m MutexCache) {
+    return MutexCache {
+        Cache: c,
+    }
+}
+
+type MutexCache struct {
     Cache
     mutex sync.Mutex
+}
+
+func (m *MutexCache) Render(b []byte) (out []byte) {
+    m.mutex.Lock()
+    defer m.mutex.Unlock()
+    return m.Cache.Render(b)
 }

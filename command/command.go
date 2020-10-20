@@ -72,10 +72,9 @@ func NewDebug(w io.Writer, execPath string) (d Debug) {
 }
 
 func (d Debug) Call(args []string) (_ []byte, err error) {
-    _, err = fmt.Fprintf(d.writer,
+    return fmt.Fprintf(d.writer,
         "Debug mode: command to run: '%s %s'\n", d.cmd,
         strings.Join(args, " "))
-    return
 }
 
 type Fail struct {
