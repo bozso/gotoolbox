@@ -1,6 +1,8 @@
 package repository
 
 import (
+    "bytes"
+    
     "github.com/bozso/gotoolbox/path"
     "github.com/bozso/gotoolbox/command"
 )
@@ -43,5 +45,26 @@ func (m *Manager) AddRepos(r ...Repository) {
 }
 
 func (m Manager) Report() (b []byte, err error) {
+    curr, err := path.Cwd()
+    if err != nil {
+        return
+    }
     
+    var buf bytes.Buffer
+
+    for ii, _ := m.Repositories {
+        err = m.Repositories[ii].Directory.Chdir()
+        if err != nil {
+            return
+        }
+        
+        b, err = m.Vcs.Status()
+        if err != nil {
+            return
+        }
+        buf.Write(b)
+    }
+    
+    b = buf.Bytes()
+    return
 }

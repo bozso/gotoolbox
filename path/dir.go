@@ -38,6 +38,15 @@ func (d *Dir) Set(s string) (err error) {
     return
 }
 
+func Cwd() (d Dir, err error) {
+    p, err := os.Getwd()
+    if err != nil {
+        return
+    }
+    
+    return New(p).ToDir()
+}
+
 func (d *Dir) UnmarshalJSON(b []byte) (err error) {
     err = d.Set(trim(b))
     return
