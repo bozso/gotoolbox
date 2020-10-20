@@ -1,14 +1,10 @@
-package tohtml
-
-import (
-    "github.com/bozso/gotoolbox/command"
-)
+package command
 
 type Git struct {
-    git command.Caller
+    git Caller
 }
 
-func NewGit(command command.Caller) (g Git) {
+func NewGit(command Caller) (g Git) {
     return Git {
         git: command,
     }
