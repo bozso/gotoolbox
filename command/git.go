@@ -4,6 +4,9 @@ import (
 
 )
 
+/* A wrapper around the git command line application. Implements
+the VCS interface.
+*/
 type Git struct {
     git Caller
 }

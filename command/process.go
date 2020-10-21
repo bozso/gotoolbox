@@ -84,8 +84,11 @@ An error describing the context of a failed communication with a
 process.
  */
 type Error struct {
+    // The string describing the executable.
     Exec string,
+    // Message written to stderr from the executable.
     Message []byte,
+    // Wrapped error.
     err error
 }
 
