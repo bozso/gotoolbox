@@ -18,5 +18,5 @@ func NewGit(command Caller) (g Git) {
 }
 
 func (g Git) Status() (b []byte, err error) {
-    return g.git.Call("status")
+    return g.git.Call([]string{"status"})
 }

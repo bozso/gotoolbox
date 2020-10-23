@@ -1,6 +1,9 @@
 package command
 
 import (
+    "fmt"
+    "io"
+    "io/ioutil"
     "os/exec"
 )
 
@@ -12,9 +15,9 @@ type Process struct {
     process *exec.Cmd
 }
 
-func NewProcess(exec *exec.Cmd) (c Command) {
-    return Command {
-        matlab: exec,
+func NewProcess(exec *exec.Cmd) (p Process) {
+    return Process {
+        process: exec,
     }
 }
 
@@ -66,12 +69,12 @@ func (s *StartedProcess) Write(b []byte) (n int, err error) {
     out, err := ioutil.ReadAll(s.Stderr)
     if err != nil {
         err = Error{
-            Exec: s.process.matlab.String()
+            Exec: s.process.String(),
             Message: out,
             err: err,
         }
-        return
     }
+    return
 }
 
 // Waits for the process to close.
@@ -85,9 +88,9 @@ process.
  */
 type Error struct {
     // The string describing the executable.
-    Exec string,
+    Exec string
     // Message written to stderr from the executable.
-    Message []byte,
+    Message []byte
     // Wrapped error.
     err error
 }
