@@ -18,6 +18,10 @@ func NewGit(command Caller) (g Git) {
     }
 }
 
+func DefaultGit() (g Git) {
+    return NewGit(NewExecutable("git"))
+}
+
 func (g Git) Status() (b []byte, err error) {
     return g.git.Call([]string{"status"})
 }

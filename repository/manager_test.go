@@ -1,7 +1,6 @@
 package repository
 
 import (
-    "log"
     "testing"
 
     "github.com/bozso/gotoolbox/path"
@@ -16,10 +15,10 @@ func testStatus() (err error) {
     
     r := New(d)
     
-    m := NewManager(command.NewGit(command.NewExecutable("git")))
+    m := NewManager(command.DefaultGit())
     m.AddRepo(r)
     
-    -, err := m.Status()
+    _, err = m.Status()
     return
 }
 
