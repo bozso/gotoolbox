@@ -53,6 +53,8 @@ func (r Repositories) Run() (err error) {
     
     m := r.config.IntoManager(vcs)
     
+    //fmt.Printf("%#v\n", m)
+    
     var out []byte
     switch strings.ToLower(r.command) {
     case "status":

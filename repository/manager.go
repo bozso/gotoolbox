@@ -1,6 +1,7 @@
 package repository
 
 import (
+    "log"
     "bytes"
     
     "github.com/bozso/gotoolbox/path"
@@ -36,14 +37,17 @@ func (m Manager) Status() (b []byte, err error) {
     var buf bytes.Buffer
 
     for ii, _ := range m.Repositories {
-        err = m.Repositories[ii].Directory.Chdir()
+        dir := m.Repositories[ii].Directory 
+        err = dir.Chdir()
         if err != nil {
             return
         }
         
         b, err = m.Vcs.Status()
         if err != nil {
-            return
+            log.Printf("error while processing directory '%s': %s\n",   
+                dir, err)
+            continue
         }
         buf.Write(b)
     }

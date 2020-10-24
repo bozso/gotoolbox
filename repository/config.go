@@ -9,11 +9,11 @@ import (
 )
 
 type Config struct {
-    repositories []Repository `json:"repos"`
+    Repositories `json:"repos"`
 }
 
 func (c Config) String() (s string) {
-    return fmt.Sprintf("repositories: %v", c.repositories)
+    return fmt.Sprintf("repositories: %v", c.Repositories)
 }
 
 func (c *Config) Set(s string) (err error) {
@@ -27,12 +27,12 @@ func (c *Config) Set(s string) (err error) {
         return
     }
     
-    return json.Unmarshal(b, &c.repositories)
+    return json.Unmarshal(b, &c)
 }
 
 func (c Config) IntoManager(vcs command.VCS) (m Manager) {
     return Manager{
-        Repositories: c.repositories,
+        Repositories: c.Repositories,
         Vcs: vcs,
     }
 }

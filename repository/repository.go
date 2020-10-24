@@ -1,7 +1,5 @@
 package repository
 
-// TODO(bozso): fix []Repository json unmarshalling
-
 import (
     "github.com/bozso/gotoolbox/path"
 )
