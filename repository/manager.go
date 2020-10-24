@@ -8,14 +8,14 @@ import (
 )
 
 type Manager struct {
-    Repositories []Repository
+    Repositories
     Vcs command.VCS
 }
 
 func NewManager(vcs command.VCS) (m Manager) {
     return Manager {
         Vcs: vcs,
-        Repositories: make([]Repository, 0, 10),
+        Repositories: make(Repositories, 0, 10),
     }
 }
 

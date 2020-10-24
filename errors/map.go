@@ -13,7 +13,7 @@ func KeyNotFound(key string) (k KeyError) {
 }
 
 func (e KeyError) Error() (s string) {
-    return fmt.Sprintf("key '%s' not found in map")
+    return fmt.Sprintf("key %s not found in map", e.key)
 }
 
 func KeyNotFoundWith(key interface{}) (k KeyError) {
