@@ -1,7 +1,6 @@
 package path
 
 import (
-    "log"
     "github.com/bozso/gotoolbox/errors"
 )
 

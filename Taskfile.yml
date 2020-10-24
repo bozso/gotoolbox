@@ -2,6 +2,9 @@
 
 version: '2'
 
+env:
+  src: /home/istvan/packages/src
+
 tasks:
   vet:
     cmds:

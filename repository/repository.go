@@ -1,11 +1,13 @@
 package repository
 
+// TODO(bozso): fix []Repository json unmarshalling
+
 import (
     "github.com/bozso/gotoolbox/path"
 )
 
 type Repository struct {
-    Directory path.Dir
+    Directory path.Dir `json:"directory"`
 }
 
 func (r *Repository) Set(s string) (err error) {
