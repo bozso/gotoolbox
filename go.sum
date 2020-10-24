@@ -12,6 +12,8 @@ github.com/bozso/gotoolbox v0.0.0-20200902161440-2313dd500f55/go.mod h1:MxdNeqqF
 github.com/buildkite/terminal-to-html v1.0.2 h1:C/c6TcIGDM9+rqN08pfWSwzi28KqSdRxlFXcz6qwelc=
 github.com/buildkite/terminal-to-html v3.2.0+incompatible h1:WdXzl7ZmYzCAz4pElZosPaUlRTW+qwVx/SkQSCa1jXs=
 github.com/buildkite/terminal-to-html v3.2.0+incompatible/go.mod h1:BFFdFecOxCgjdcarqI+8izs6v85CU/1RA/4Bqh4GR7E=
+github.com/dataf3l/go-doc v0.0.0-20191105060922-cff2e12f289f h1:OBCO9puNqel4PtsMhqPRRI/G0jpGYkblc/sDD4PuGF4=
+github.com/dataf3l/go-doc v0.0.0-20191105060922-cff2e12f289f/go.mod h1:DXsDRM4e9iRiIezb0Cf/2kiNK3EQx/oUZb5DW7wSssg=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fasthttp/router v1.3.2 h1:n9r5QNuJi5z5Sp2vp/0SrawogTjGfYFqTOyP/R8ehNI=

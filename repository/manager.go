@@ -7,23 +7,6 @@ import (
     "github.com/bozso/gotoolbox/command"
 )
 
-type Repository struct {
-    Directory path.Dir
-}
-
-func NewRepository(dir path.Dir) (r Repository) {
-    return Repository {
-        Directory: path.Dir
-    }
-}
-
-func (r *Repository) FromPath(p path.Pather) (err error) {
-    d, err := p.GetPath().ToValid().ToDir()
-    
-    *r = NewRepository(d)
-    return
-}
-
 type Manager struct {
     Repositories []Repository
     Vcs command.VCS
@@ -32,7 +15,7 @@ type Manager struct {
 func NewManager(vcs command.VCS) (m Manager) {
     return Manager {
         Vcs: vcs,
-        Repositories: make([]Repositories, 0, 10),
+        Repositories: make([]Repository, 0, 10),
     }
 }
 
@@ -41,10 +24,10 @@ func (m *Manager) AddRepo(r Repository) {
 }
 
 func (m *Manager) AddRepos(r ...Repository) {
-    m.Repositories = append(m.Repositories, r...l)
+    m.Repositories = append(m.Repositories, r...)
 }
 
-func (m Manager) Report() (b []byte, err error) {
+func (m Manager) Status() (b []byte, err error) {
     curr, err := path.Cwd()
     if err != nil {
         return
@@ -52,7 +35,7 @@ func (m Manager) Report() (b []byte, err error) {
     
     var buf bytes.Buffer
 
-    for ii, _ := m.Repositories {
+    for ii, _ := range m.Repositories {
         err = m.Repositories[ii].Directory.Chdir()
         if err != nil {
             return
@@ -65,6 +48,6 @@ func (m Manager) Report() (b []byte, err error) {
         buf.Write(b)
     }
     
-    b = buf.Bytes()
+    b, err = buf.Bytes(), curr.Chdir()
     return
 }
