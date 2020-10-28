@@ -1,5 +1,8 @@
 package main
 
+// 12  M gotoolbox
+// 2.5 M tasker
+
 import (
     "fmt"
     "os"
@@ -104,6 +107,10 @@ func main() {
     c.AddAction("repositories",
         "manage version control system repositories",
         &Repositories{})
+
+    c.AddAction("task",
+        "run a Taskfile.yml from any directory",
+        &Tasker{})
 
     c.AddAction("jet-server", "render jet templates through a web server",
         &doc.TemplateServer{})
