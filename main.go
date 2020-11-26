@@ -1,8 +1,5 @@
 package main
 
-// 12  M gotoolbox
-// 2.5 M tasker
-
 import (
     "fmt"
     "os"
@@ -39,7 +36,6 @@ func (r *Repositories) SetCli(c *cli.Cli) {
         "type of the version control system to use")
     c.StringVar(&r.command, "command", "status",
         "which type of command to use")
-    
     c.Var(&r.out, "out", "where to write the output")
 }
 

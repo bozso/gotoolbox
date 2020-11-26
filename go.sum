@@ -16,6 +16,8 @@ github.com/dataf3l/go-doc v0.0.0-20191105060922-cff2e12f289f h1:OBCO9puNqel4PtsM
 github.com/dataf3l/go-doc v0.0.0-20191105060922-cff2e12f289f/go.mod h1:DXsDRM4e9iRiIezb0Cf/2kiNK3EQx/oUZb5DW7wSssg=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 h1:clC1lXBpe2kTj2VHdaIu9ajZQe4kcEY9j0NsnDDBZ3o=
+github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385/go.mod h1:0vRUJqYpeSZifjYj7uP3BG/gKcuzL9xWVV/Y+cK33KM=
 github.com/fasthttp/router v1.3.2 h1:n9r5QNuJi5z5Sp2vp/0SrawogTjGfYFqTOyP/R8ehNI=
 github.com/fasthttp/router v1.3.2/go.mod h1:athTSKMdel0Qhh3W4nB8qn+EPYuyj6YZMUo6ZcXWTgc=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=

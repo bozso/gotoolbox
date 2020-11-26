@@ -8,6 +8,7 @@ require (
 	github.com/bozso/emath v0.3.0
 	github.com/buildkite/terminal-to-html v3.2.0+incompatible
 	github.com/dataf3l/go-doc v0.0.0-20191105060922-cff2e12f289f // indirect
+	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
 	github.com/fasthttp/router v1.3.2
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0

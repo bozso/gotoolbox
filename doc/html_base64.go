@@ -37,4 +37,29 @@ func (h HtmlEncoder) EncodeFile(vf path.ValidFile) (s string, err error) {
     return buf.String(), nil
 }
 
+type HtmlEncoderPlotly struct {
+    encoder Encoder
+}
+
+func NewHtmlPlotlyEncoder(enc Encoder) (p HtmlEncoderPlotly) {
+    p.encoder = enc
+    return
+}
+
+func (p HtmlEncoderPlotly) EncodeFile(vf path.ValidFile) (s string, err error) {
+    ext := vf.Ext()[1:]
+    
+    var buf strings.Builder
+    fmt.Fprintf(&buf, "data:image/%s;base64,", ext)
+    
+    out, err := EncodeFile(p.encoder, vf)
+    if err != nil {
+        return
+    }
+
+    buf.Write(out)
+    return buf.String(), nil
+}
+
 var Base64 = NewHtmlEncoder(base64.StdEncoding)
+var PlotlyBase64 = NewHtmlPlotlyEncoder(base64.StdEncoding)
