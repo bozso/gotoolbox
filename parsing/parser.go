@@ -12,15 +12,9 @@ type Value interface {
     Set(string) error
 }
 
-type GetterParser struct {
-    getter Getter
-}
 
-
-
-
-func (g GetterParser) Get(key string) (s string, b bool) {
-    s = g.getter.Get(key)
+func Get(g Getter, key string) (s string, b bool) {
+    s = g.Get(key)
 
     if len(s) != 0 {
         b = true
@@ -28,8 +22,8 @@ func (g GetterParser) Get(key string) (s string, b bool) {
     return
 }
 
-func (g GetterParser) GetVal(key string, val Value) (err error) {
-    s, err := g.MustGet(key)
+func GetVal(g Getter, key string, val Value) (err error) {
+    s, err := MustGet(g, key)
     if err != nil {
         return
     }
@@ -38,9 +32,9 @@ func (g GetterParser) GetVal(key string, val Value) (err error) {
     return
 }
 
-func (g GetterParser) GetInt(key string) (i int, err error) {
+func GetInt(g Getter, key string) (i int, err error) {
     var ii Int
-    err = g.GetVal(key, &ii)
+    err = GetVal(g, key, &ii)
     if err != nil {
         return
     }
@@ -49,9 +43,9 @@ func (g GetterParser) GetInt(key string) (i int, err error) {
     return
 }
 
-func (g GetterParser) GetFloat32(key string) (f float32, err error) {
+func GetFloat32(g Getter, key string) (f float32, err error) {
     var fl Float32
-    err = g.GetVal(key, &fl)
+    err = GetVal(g, key, &fl)
     if err != nil {
         return
     }
@@ -60,9 +54,9 @@ func (g GetterParser) GetFloat32(key string) (f float32, err error) {
     return
 }
 
-func (g GetterParser) GetFloat64(key string) (f float64, err error) {
+func GetFloat64(g Getter, key string) (f float64, err error) {
     var fl Float64
-    err = g.GetVal(key, &fl)
+    err = GetVal(g, key, &fl)
     if err != nil {
         return
     }
@@ -71,12 +65,12 @@ func (g GetterParser) GetFloat64(key string) (f float64, err error) {
     return
 }
 
-func (g GetterParser) GetFloat(key string) (f float64, err error) {
-    return g.GetFloat64(key)
+func GetFloat(g Getter, key string) (f float64, err error) {
+    return GetFloat64(g, key)
 }
 
-func (g GetterParser) MustGet(key string) (s string, err error) {
-    s, b := g.Get(key)
+func MustGet(g Getter, key string) (s string, err error) {
+    s, b := Get(g, key)
 
     if !b {
         err = KeyNotFound{key}
