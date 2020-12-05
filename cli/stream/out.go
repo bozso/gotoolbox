@@ -16,7 +16,7 @@ type OutFile struct {
 }
 
 func DefaultOut() OutFile {
-    return OutFile{
+    return OutFile {
         stream: stream{name: stdoutName},
         WriteCloser: os.Stdout,
     }
@@ -29,12 +29,12 @@ func (o *OutFile) UnmarshalJSON(b []byte) (err error) {
 
 func (o *OutFile) Set(s string) (err error) {
     f := path.New(s).ToFile()
-    
+
     file, err := f.Create()
     if err != nil {
         return
     }
-    
+
     o.name, o.WriteCloser = Name(s), file
     return
 }
@@ -55,10 +55,13 @@ func (o *Out) Default() {
 func (o *Out) Set(s string) (err error) {
     if len(s) != 0 {
         err = o.OutFile.Set(s)
+    } else {
+        o.Default()
     }
-    
+
     return
 }
+
 func (o *Out) UnmarshalJSON(b []byte) (err error) {
     err = o.Set(string(b))
     return

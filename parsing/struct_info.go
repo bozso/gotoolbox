@@ -10,9 +10,9 @@ type StructInfo struct {
     FieldMap FieldInfoMap
 }
 
-func (g GetterParser) ParseStruct(s *StructInfo) (err error) {
+func ParseStruct(g Getter, s *StructInfo) (err error) {
     for field, val := range s.FieldMap {
-        if err = g.GetVal(field, val); err != nil {
+        if err = GetVal(g, field, val); err != nil {
             break
         }
     }

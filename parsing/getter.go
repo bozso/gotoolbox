@@ -1,4 +1,4 @@
-package parser
+package parsing
 
 import (
 
@@ -22,6 +22,6 @@ func (p Parser) MustGet(key string) (s string, err error) {
     return MustGet(p.getter, key)
 }
 
-func (p Parser) Int(key string) (ii int, b bool) {
+func (p Parser) Int(key string) (ii int, err error) {
     return GetInt(p.getter, key)
 }

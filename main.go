@@ -5,7 +5,7 @@ import (
     "os"
     "strings"
     "net/http"
-    
+
     "github.com/gorilla/mux"
     "github.com/gorilla/rpc/v2"
     "github.com/gorilla/rpc/v2/json2"
@@ -14,6 +14,7 @@ import (
 
     "github.com/bozso/gotoolbox/doc"
     "github.com/bozso/gotoolbox/cli"
+    "github.com/bozso/gotoolbox/cmd"
     "github.com/bozso/gotoolbox/command"
     "github.com/bozso/gotoolbox/cli/stream"
     "github.com/bozso/gotoolbox/services"
@@ -41,7 +42,7 @@ func (r *Repositories) SetCli(c *cli.Cli) {
 
 func (r Repositories) Run() (err error) {
     var vcs command.VCS
-    
+
     switch strings.ToLower(r.vcs) {
     case "git":
         vcs = command.DefaultGit()
@@ -49,11 +50,9 @@ func (r Repositories) Run() (err error) {
         err = fmt.Errorf("unknown version control system '%s'", r.vcs)
         return
     }
-    
+
     m := r.config.IntoManager(vcs)
-    
-    //fmt.Printf("%#v\n", m)
-    
+
     var out []byte
     switch strings.ToLower(r.command) {
     case "status":
@@ -61,16 +60,17 @@ func (r Repositories) Run() (err error) {
     default:
         err = fmt.Errorf("unknown manager command '%s'", r.command)
     }
-    
+
     if err != nil {
         return
     }
-    
+
     if r.intoHtml {
         out = tth.Render(out)
     }
-    
+
     _, err = r.out.Write(out)
+
     return
 }
 
@@ -93,16 +93,19 @@ func (sv Service) Run() (err error) {
     r := mux.NewRouter()
     r.Handle("/rpc", s)
 
-    
     return http.ListenAndServe(sv.port.Localhost(), r)
 }
 
 func main() {
     c := cli.New("toolbox", "Useful functions.")
-    
+
     c.AddAction("repositories",
         "manage version control system repositories",
         &Repositories{})
+
+    c.AddAction("genrepos",
+        "generate configuration file for git repositories",
+        &cmd.GenRepos{})
 
     c.AddAction("task",
         "run a Taskfile.yml from any directory",
@@ -113,7 +116,7 @@ func main() {
 
     c.AddAction("template", "render jet templates",
         &doc.TemplateRender{})
-    
+
     c.AddAction("service", "start services",
         &Service{})
 

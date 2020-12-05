@@ -61,11 +61,11 @@ type Setuper interface {
 
 func (c *Cli) AddAction(name, desc string, act Action) {
     def, ok := act.(Defaulter)
-    
+
     if ok {
         def.Default()
     }
-    
+
     c.subcommands[name] = subcommand{
         action: act,
         c: New(name, desc),
@@ -91,44 +91,42 @@ func (c Cli) Run() (err error) {
 }
 
 func (c Cli) RunWithArgs(args []string) (err error) {
-    //ferr := merr.Make("Cli.Run")
-    
     if !c.HasSubcommands() {
         err = c.Parse(args)
         return
     }
-    
+
     l := len(args)
-    
+
     if l < 1 {
         fmt.Printf("Expected at least one parameter specifying subcommand.\n")
         c.Usage()
         return nil
     }
-    
+
     // TODO: check if args is long enough
     mode := args[0]
-    
+
     if mode == "-help" || mode == "-h" {
         c.Usage()
         return nil
     }
-    
+
     subcom, ok := c.subcommands[mode]
-    
+
     if !ok {
         return errors.UnrecognizedMode(mode, c.Name())
     }
-    
+
     subc, act := &subcom.c, subcom.action
     subcom.action.SetCli(subc)
-    
+
     err = subc.Parse(args[1:])
-    
+
     if err != nil {
         return
     }
-    
+
     setup, ok := act.(Setuper)
 
     if ok {
@@ -136,7 +134,7 @@ func (c Cli) RunWithArgs(args []string) (err error) {
             return
         }
     }
-    
+
     return act.Run()
 }
 
