@@ -59,8 +59,6 @@ func (p Path) Join(args ...string) Path {
     return Joined(append(ss, args...)...)
 }
 
-
-
 func (p Path) IGlob() (it Iterable, err error) {
     v, err := p.Glob()
     if err != nil {
@@ -75,13 +73,13 @@ func (p Path) Glob() (v []Valid, err error) {
     if err != nil {
         return
     }
-    
+
     v = make([]Valid, len(paths))
-    
+
     for ii, _ := range paths {
         v[ii].Path = New(paths[ii])
     }
-    
+
     return
 }
 
@@ -95,11 +93,11 @@ func (p Path) String() string {
 
 func (p Path) Abs() (pp Path, err error) {
     pp.s, err = filepath.Abs(p.String())
-    
+
     if err != nil {
         err = p.Fail(OpCreateAbs, err)
     }
-    
+
     return
 }
 
@@ -116,13 +114,18 @@ func (p Path) Len() int {
     return len(p.String())
 }
 
-func (p Path) Ext() string {
-    return pa.Ext(p.String())
+func (p Path) Ext() (ext string) {
+    ext = pa.Ext(p.String())
+
+    if len(ext) > 1 {
+        ext = ext[1:]
+    }
+    return
 }
 
 func (p Path) NoExt() (pp Path) {
     s := p.String()
-    
+
     return Path{strings.TrimSuffix(s, p.Ext())}
 }
 
@@ -132,11 +135,20 @@ func (p Path) Dir() (pp Path) {
 
 func (p Path) Create() (of *os.File, err error) {
     of, err = os.Create(p.String())
-    
+
     if err != nil {
         err = p.Fail(OpCreate, err)
     }
-    
+
+    return
+}
+
+func (p Path) Touch() (err error) {
+    f, err := p.Create()
+    if err != nil {
+        return
+    }
+    err = f.Close()
     return
 }
 

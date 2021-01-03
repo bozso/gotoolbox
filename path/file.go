@@ -24,7 +24,7 @@ func (f File) IfExists() (opt *ValidFile, err error) {
 }
 
 func (p Path) ToFile() (f File) {
-    f.Path = p    
+    f.Path = p
     return
 }
 
@@ -42,7 +42,7 @@ func (p Path) ToValidFile() (vf ValidFile, err error) {
     if err != nil {
         return
     }
-    
+
     vf, err = v.ToFile()
     return
 }
@@ -52,7 +52,7 @@ func (f File) ToValid() (vf ValidFile, err error) {
     if err != nil {
         return
     }
-    
+
     vf, err = v.ToFile()
     return
 }
@@ -77,7 +77,7 @@ func (vf ValidFile) Scanner() (s Scanner, err error) {
     if err != nil {
         return
     }
-    
+
     s.Scanner = bufio.NewScanner(s.File)
     return
 }
@@ -88,7 +88,7 @@ func (vf ValidFile) ReadAll() (b []byte, err error) {
         return
     }
     defer file.Close()
-    
+
     b, err = ioutil.ReadAll(file)
     return
 }
@@ -98,17 +98,17 @@ func (vf ValidFile) LoadJson(val interface{}) (err error) {
     if err != nil {
         return
     }
-    
+
     err = json.Unmarshal(b, val)
     if err != nil {
         return
     }
-    
+
     v, ok := val.(Validator)
     if !ok {
         return
     }
-    
+
     err = v.Validate()
     return
 }
