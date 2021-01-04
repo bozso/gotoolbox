@@ -7,11 +7,11 @@ import (
 type Extension string
 
 func (e Extension) Check(v ValidFile) (b bool) {
-    return v.Ext() == string(e)
+    return v.Extension() == e
 }
 
 func (e Extension) MustHave(v ValidFile) (err error) {
-    if ext := v.Ext(); ext != string(e) {
+    if ext := v.Extension(); ext != e {
         err = WrongExtension{
             Expected: e,
             Got: ext,
@@ -23,7 +23,7 @@ func (e Extension) MustHave(v ValidFile) (err error) {
 
 type WrongExtension struct {
     Expected Extension
-    Got string
+    Got Extension
     File ValidFile
 }
 
@@ -32,3 +32,9 @@ func (e WrongExtension) Error() (s string) {
         "expected extension '%s' got '%s' for path '%s'", e.Expected,
         e.Got, e.File)
 }
+
+type WithExtension struct {
+    like Like
+    Extension
+}
+

@@ -23,7 +23,7 @@ func (f File) IfExists() (opt *ValidFile, err error) {
     return
 }
 
-func (p Path) ToFile() (f File) {
+func (p Path) ToFile() (f File, err error) {
     f.Path = p
     return
 }

@@ -17,17 +17,13 @@ type Pather interface {
     AsPath() Path
 }
 
-type Baser interface {
-    Base() string
-}
-
 type Path struct {
     s string
 }
 
 func New(p string) Path {
     return Path{p}
-} 
+}
 
 func (p Path) Into(f From) (err error) {
     return f.FromPath(p)
@@ -53,9 +49,9 @@ func Joined(args ...string) Path {
     return Path{filepath.Join(args...)}
 }
 
-func (p Path) Join(args ...string) Path {
+func (p Path) Join(args ...string) (l Like) {
     ss := []string{p.s}
-    
+
     return Joined(append(ss, args...)...)
 }
 
@@ -65,7 +61,7 @@ func (p Path) IGlob() (it Iterable, err error) {
         return
     }
     it = newValids(v)
-    return 
+    return
 }
 
 func (p Path) Glob() (v []Valid, err error) {
@@ -91,42 +87,43 @@ func (p Path) String() string {
     return p.GetPath()
 }
 
-func (p Path) Abs() (pp Path, err error) {
-    pp.s, err = filepath.Abs(p.String())
+func (p Path) Abs() (l Like, err error) {
+    s, err := filepath.Abs(p.String())
 
     if err != nil {
         err = p.Fail(OpCreateAbs, err)
     }
+    l = New(s)
 
     return
 }
 
-func (p Path) AddExt(ext string) (pp Path) {
+func (p Path) AddExtension(ext string) (l Like) {
     return New(fmt.Sprintf("%s.%s", p.GetPath(), ext))
 }
 
-func (p Path) Base() (pp Path) {
-    pp.s = filepath.Base(p.String())
-    return
+
+func (p Path) Base() (l Like) {
+    return New(filepath.Base(p.String()))
 }
 
 func (p Path) Len() int {
     return len(p.String())
 }
 
-func (p Path) Ext() (ext string) {
-    ext = pa.Ext(p.String())
+func (p Path) Extension() (ext Extension) {
+    ex := pa.Ext(p.String())
 
-    if len(ext) > 1 {
-        ext = ext[1:]
+    if len(ex) > 1 {
+        ex = ex[1:]
     }
-    return
+    return Extension(ext)
 }
 
-func (p Path) NoExt() (pp Path) {
+func (p Path) NoExtension() (l Like) {
     s := p.String()
 
-    return Path{strings.TrimSuffix(s, p.Ext())}
+    return Path{strings.TrimSuffix(s, string(p.Extension()))}
 }
 
 func (p Path) Dir() (pp Path) {
@@ -152,7 +149,7 @@ func (p Path) Touch() (err error) {
     return
 }
 
-func (p Path) Exist() (b bool, err error) {
+func (p Path) Exists() (b bool, err error) {
     b, s := false, p.s
     _, err = os.Stat(s)
 
@@ -160,12 +157,12 @@ func (p Path) Exist() (b bool, err error) {
         b = true
         return
     }
-    
+
     if os.IsNotExist(err) {
         err = nil
         return
     }
-    
+
     err = p.Fail(OpExists, err)
     return
 }
@@ -176,31 +173,31 @@ func (e NotExists) Error() (s string) {
     return fmt.Sprintf("path '%s' does not exist", string(e))
 }
 
-const DoesNotExist NotExists = "" 
+const DoesNotExist NotExists = ""
 
 func (p Path) MustExist() (err error) {
-    b, err := p.Exist()
+    b, err := p.Exists()
     if err != nil {
         return
     }
-    
+
     if !b {
         err = NotExists(p.String())
     }
-    
+
     return
 }
 
 func (p Path) IfExists() (optPath *Valid, err error) {
     v, err := p.ToValid()
-    
+
     if err == nil {
         optPath = &v
     // file does not exist, optPath is nil, no error is raised
     } else if errors.Is(err, DoesNotExist) {
         err = nil
     }
-    
+
     return
 }
 
@@ -208,7 +205,7 @@ func (p Path) ToValid() (vp Valid, err error) {
     if err = p.MustExist(); err != nil {
         return
     }
-    
+
     vp.Path = p
     return
 }
@@ -234,7 +231,7 @@ func (b ByModTime) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
 func (b ByModTime) Less(i, j int) bool {
     const check gerrors.Asserter = "failed to retreive modification time" 
-    
+
     v1 := b[i]
     t1, err := v1.ModTime()
     check.Checkf(err, "for path '%s'", v1)
@@ -242,8 +239,7 @@ func (b ByModTime) Less(i, j int) bool {
     v2 := b[j]
     t2, err := v2.ModTime()
     check.Checkf(err, "for path '%s'", v2)
-    
-    
+
     return t1.Before(t2)
 }
 
@@ -255,17 +251,17 @@ type Creatable interface {
 func CreateIf(create Creatable, s string) (err error) {
     p := New(s)
 
-    exists, err := p.Exist()
+    exists, err := p.Exists()
     if err != nil {
         return
     }
-    
+
     if !exists {
         if err = create.Create(p); err != nil {
             return
         }
     }
-    
+
     create.SetPath(p)
     return
-} 
+}
