@@ -6,32 +6,37 @@ import (
 
 type GlobPattern struct {
     pattern string
-    globbed []Valid
+    result GlobResult
     err error
 }
 
-type GlobResult struct {}
-
 func (g *GlobPattern) UnmarshalJSON(b []byte) (err error) {
     g.pattern = trim(b)
-    g.globbed, g.err = New(g.pattern).Glob()
-    return g.err
+    globbed, err := New(g.pattern).Glob()
+    g.result, g.err = GlobResult{globbed}, err
+    return err
 }
 
-func (g GlobPattern) Glob() (v []Valid, err error) {
-    return g.globbed, g.err
+func (g GlobPattern) Glob() (gr GlobResult, err error) {
+    return g.result, g.err
 }
 
-func (g GlobPattern) Into(in []From) (err error) {
-    glob, err := g.Glob()
-    if err != nil {
-        return
-    }
+type GlobResult struct {
+    glob []Valid
+}
 
-    for p := range glob {
-        in
+func (g GlobResult) Len() (n int) {
+    return len(g.glob)
+}
 
+func (g GlobResult) Into(in []From) (err error) {
+    for ii, p := range g.glob {
+        err = in[ii].FromPath(p)
+        if err != nil {
+            break
+        }
     }
+    return
 }
 
 
@@ -46,16 +51,16 @@ func (g Globber) Glob() (v []Valid, err error) {
     if err != nil {
         return
     }
-    
+
     v = make([]Valid, 0, 10)
-    
+
     var keep bool
     for _, file := range glob {
         keep, err = g.Filterer.Filter(file)
         if err != nil {
             return
         }
-        
+
         if keep {
             v = append(v, file)
         }
