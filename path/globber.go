@@ -4,9 +4,40 @@ import (
 
 )
 
+type GlobPattern struct {
+    pattern string
+    globbed []Valid
+    err error
+}
+
+type GlobResult struct {}
+
+func (g *GlobPattern) UnmarshalJSON(b []byte) (err error) {
+    g.pattern = trim(b)
+    g.globbed, g.err = New(g.pattern).Glob()
+    return g.err
+}
+
+func (g GlobPattern) Glob() (v []Valid, err error) {
+    return g.globbed, g.err
+}
+
+func (g GlobPattern) Into(in []From) (err error) {
+    glob, err := g.Glob()
+    if err != nil {
+        return
+    }
+
+    for p := range glob {
+        in
+
+    }
+}
+
+
 type Globber struct {
     Valid    Valid           `json:"path"`
-    Pattern  string          `json:"pattern"` 
+    Pattern  string          `json:"pattern"`
     Filterer FiltererPayload `json:"select"`
 }
 
