@@ -29,9 +29,24 @@ func (g GlobResult) Len() (n int) {
     return len(g.glob)
 }
 
-func (g GlobResult) Into(in []From) (err error) {
+func (g GlobResult) Filter(filt Filterer) (f []Valid, err error) {
+    f = make([]Valid, 0, g.Len())
+
+    for _, p := range g.glob {
+        keep, err := filt.Filter(p)
+        if err != nil {
+            break
+        }
+        if keep {
+            f = append(f, p)
+        }
+    }
+    return
+}
+
+func (g GlobResult) Into(in IndexedFrom) (err error) {
     for ii, p := range g.glob {
-        err = in[ii].FromPath(p)
+        err = in.GetFrom(ii).FromPath(p)
         if err != nil {
             break
         }

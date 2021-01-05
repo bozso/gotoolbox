@@ -108,8 +108,8 @@ func (vp Valid) Remove() (err error) {
     return os.Remove(vp.String())
 }
 
-func (vp Valid) Rename(target Pather) (dst Valid, err error) {
-    s1, s2 := vp.String(), target.AsPath().String()
+func (vp Valid) Rename(target fmt.Stringer) (dst Valid, err error) {
+    s1, s2 := vp.String(), target.String()
 
     if err = os.Rename(s1, s2); err != nil {
         err = errors.WrapFmt(err, "failed to move '%s' to '%s'", s1, s2)

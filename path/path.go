@@ -55,15 +55,6 @@ func (p Path) Join(args ...string) (l Like) {
     return Joined(append(ss, args...)...)
 }
 
-func (p Path) IGlob() (it Iterable, err error) {
-    v, err := p.Glob()
-    if err != nil {
-        return
-    }
-    it = newValids(v)
-    return
-}
-
 func (p Path) Glob() (v []Valid, err error) {
     paths, err := filepath.Glob(p.GetPath())
     if err != nil {
