@@ -2,7 +2,6 @@ package path
 
 import (
     "os"
-    "io"
     "bufio"
     "errors"
     "io/ioutil"
@@ -84,25 +83,6 @@ func (vf ValidFile) Move(d Dir) (vfm ValidFile, err error) {
     return
 }
 
-type ReadCloserCreator interface {
-    CreateReadCloser() (r io.ReadCloser, err error)
-}
-
-type ReadResource struct {
-    creator ReadCloserCreator
-}
-
-func (r ReadResource) Use(fn func (io.ReadCloser) error) (err error) {
-    rc, err := r.creator.CreateReadCloser()
-    if err != nil {
-        return
-    }
-
-    if err = fn(rc); err != nil {
-        return
-    }
-    return rc.Close()
-}
 
 type Scanner struct {
     *bufio.Scanner
