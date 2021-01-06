@@ -2,6 +2,7 @@ package path
 
 import (
     "os"
+    "io"
     "bufio"
     "errors"
     "io/ioutil"
@@ -37,6 +38,22 @@ type ValidFile struct {
     Valid
 }
 
+/*
+Use manages the `os.File` resource inside it's body allowing a
+a clousure or plain function acces to it.
+*/
+func (v ValidFile) Use(fn func (*os.File) error) (err error) {
+    f, err := v.Open()
+    if err != nil {
+        return
+    }
+
+    if err = fn(f); err != nil {
+        return
+    }
+    return f.Close()
+}
+
 func (p Path) ToValidFile() (vf ValidFile, err error) {
     v, err := p.ToValid()
     if err != nil {
@@ -65,6 +82,26 @@ func (vf ValidFile) ToFile() (f File) {
 func (vf ValidFile) Move(d Dir) (vfm ValidFile, err error) {
     vfm.Valid, err = vf.Valid.Move(d)
     return
+}
+
+type ReadCloserCreator interface {
+    CreateReadCloser() (r io.ReadCloser, err error)
+}
+
+type ReadResource struct {
+    creator ReadCloserCreator
+}
+
+func (r ReadResource) Use(fn func (io.ReadCloser) error) (err error) {
+    rc, err := r.creator.CreateReadCloser()
+    if err != nil {
+        return
+    }
+
+    if err = fn(rc); err != nil {
+        return
+    }
+    return rc.Close()
 }
 
 type Scanner struct {
