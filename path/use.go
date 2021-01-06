@@ -2,18 +2,23 @@ package path
 
 import (
     "io"
+    "bufio"
 )
 
-type ReadCloserCreator interface {
-    CreateReadCloser() (r io.ReadCloser, err error)
+/*
+ReadCreator represents an object that can create a `ReadCloser`.
+*/
+type ReaderCreator interface {
+    CreateReader() (r io.ReadCloser, err error)
 }
 
-type ReadResource struct {
-    creator ReadCloserCreator
-}
-
-func (r ReadResource) Use(fn func (io.ReadCloser) error) (err error) {
-    rc, err := r.creator.CreateReadCloser()
+/*
+UseReader creates a `ReadCloser` object, applies the `fn` function to it
+(uses the resource), and finally closes it. This ensures the 
+of such 
+*/
+func UseReader(r ReaderCreator, fn func (io.ReadCloser) error) (err error) {
+    rc, err := r.CreateReader()
     if err != nil {
         return
     }
@@ -21,5 +26,24 @@ func (r ReadResource) Use(fn func (io.ReadCloser) error) (err error) {
     if err = fn(rc); err != nil {
         return
     }
+    return rc.Close()
+}
+
+/*
+UseAsScanner creates a `ReaderCloser` and wraps it inside a `bufio.Scanner`
+struct to be used by `fn`.
+*/
+func UseAsScanner(r ReaderCreator, fn func(*bufio.Scanner) error) (err error) {
+    rc, err := r.CreateReader()
+    if err != nil {
+        return
+    }
+
+    scanner := bufio.NewScanner(rc)
+
+    if err = fn(scanner); err != nil {
+        return
+    }
+
     return rc.Close()
 }
