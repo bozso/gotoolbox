@@ -1,6 +1,7 @@
 package path
 
 import (
+    "fmt"
     "io"
     "bufio"
 )
@@ -38,6 +39,7 @@ func (b *BufferedReadCloser) Read(p []byte) (n int, err error) {
     return b.Reader.Read(p)
 }
 
+
 /*
 UseReader creates a ReadCloser object, applies the fn function to it
 (uses the resource), and finally closes it. This ensures that the error
@@ -51,7 +53,7 @@ func UseReader(r ReaderCreator, fn func (io.Reader) error) (err error) {
     }
 
     if err = fn(rc); err != nil {
-        return
+        return closeWrap(err, rc)
     }
     return rc.Close()
 }
@@ -69,7 +71,7 @@ func UseAsScanner(r ReaderCreator, fn func(*bufio.Scanner) error) (err error) {
     scanner := bufio.NewScanner(rc)
 
     if err = fn(scanner); err != nil {
-        return
+        return closeWrap(err, rc)
     }
 
     return rc.Close()
@@ -86,9 +88,25 @@ func UseWriter(w WriterCreator, fn func(io.Writer) error) (err error) {
     }
 
     if err = fn(wc); err != nil {
-        return
+        return closeWrap(err, wc)
     }
     return wc.Close()
 }
 
 
+type CloseError struct {
+    err error
+}
+
+func (ce CloseError) Error() (s string) {
+    return fmt.Sprintf(
+        "failed to close resource while while handling error %s", ce.err)
+}
+
+func closeWrap(err error, c io.Closer) (Err error) {
+    if cerr := c.Close(); err != nil {
+        err = CloseError{ err: err }
+    }
+
+    return err
+}
