@@ -61,10 +61,10 @@ func (it *Iter) Range() (reflect.Value, reflect.Value, bool) {
     for it.current < it.stop {
         it.current += it.step
         it.index += 1
-        
+
         return reflect.ValueOf(it.index), reflect.ValueOf(it.current), false 
     }
-    
+
     return reflect.Value{}, reflect.Value{}, true
 }
 

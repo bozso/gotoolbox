@@ -21,18 +21,16 @@ func (in *InFile) UnmarshalJSON(b []byte) (err error) {
 }
 
 func (in *InFile) Set(s string) (err error) {
-    f := path.New(s).ToFile()
-    vf, err := f.ToValid()
-    
+    vf, err := path.New(s).ToValidFile()
     if err != nil {
         return
     }
-    
+
     file, err := vf.Open()
     if err != nil {
         return
     }
-    
+
     in.name, in.ReadCloser = Name(s), file
     return
 }

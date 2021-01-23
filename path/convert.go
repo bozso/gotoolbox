@@ -11,6 +11,10 @@ type From interface {
     FromPath(p Pather) error
 }
 
+type Transformer interface {
+    Transform(Like) (Like, error)
+}
+
 type Valids []Valid
 
 func (v Valids) Filter(filt Filterer) (filtered Valids, err error) {
@@ -29,5 +33,6 @@ func (v Valids) Filter(filt Filterer) (filtered Valids, err error) {
 }
 
 func (v Valids) Transform(trans Transformer) (transformed Valids, err error) {
+    return
 
 }

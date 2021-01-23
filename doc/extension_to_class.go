@@ -3,7 +3,7 @@ package doc
 import (
     "fmt"
 
-    "github.com/bozso/gotoolbox/enum"    
+    "github.com/bozso/gotoolbox/enum"
 )
 
 type (
@@ -22,7 +22,7 @@ func ExtensionToType(ext string) (extType string, err error) {
             return key, nil
         }
     }
-    
+
     err = NoMatchingClass{ext}
     return
 }
