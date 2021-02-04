@@ -5,7 +5,7 @@ import (
 )
 
 type Getter interface {
-    Get(string) string
+    GetParam(string) string
 }
 
 type Value interface {
@@ -14,7 +14,7 @@ type Value interface {
 
 
 func Get(g Getter, key string) (s string, b bool) {
-    s = g.Get(key)
+    s = g.GetParam(key)
 
     if len(s) != 0 {
         b = true
