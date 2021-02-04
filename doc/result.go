@@ -45,7 +45,6 @@ func (s *Status) From(g Getter) (b bool) {
     if s.Err != nil {
         return true
     }
-    
     err := g.Get()
 
     if err != nil {
@@ -54,6 +53,6 @@ func (s *Status) From(g Getter) (b bool) {
     } else {
         b = false
     }
-    
+
     return
 }

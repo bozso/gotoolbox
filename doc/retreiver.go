@@ -18,7 +18,7 @@ func (l Loader) Join(args ...string) (ll Loader) {
     if ll.From(l) {
         return
     }
-    
+
     ll.root, ll.Err = l.root.Join(args...).ToDir()
     return
 }
@@ -27,7 +27,7 @@ func (l Loader) Retreive(args ...string) (p Path) {
     if p.From(l) {
         return
     }
-    
+
     p.TryFrom(l.root.Join(args...))
     return
 }
@@ -39,7 +39,7 @@ type Bytes struct {
 
 type LoadEncoder struct {
     Loader
-    encoder FileEncoder    
+    encoder FileEncoder
 }
 
 func (d Doc) Base64Encoder(args ...string) (le LoadEncoder) {
@@ -55,18 +55,18 @@ func (le LoadEncoder) Encode(args ...string) (str StringResult) {
     if str.From(le) {
         return
     }
-    
+
     p := le.Retreive(args...)
     if p.Err != nil {
         return
     }
-    
+
     f, err := p.Valid.ToFile()
     if err != nil {
         str.Err = err
         return
     }
-    
+
     s, err := le.encoder.EncodeFile(f)
     if err != nil {
         p.Err = err
@@ -83,7 +83,7 @@ type Path struct {
     path.Valid
 }
 
-func (p *Path) TryFrom(systemPath path.Path) {
+func (p *Path) TryFrom(systemPath path.Like) {
     p.Valid, p.Err = systemPath.ToValid()
     return
 }

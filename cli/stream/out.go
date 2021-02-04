@@ -28,7 +28,10 @@ func (o *OutFile) UnmarshalJSON(b []byte) (err error) {
 }
 
 func (o *OutFile) Set(s string) (err error) {
-    f := path.New(s).ToFile()
+    f, err := path.New(s).ToFile()
+    if err != nil {
+        return
+    }
 
     file, err := f.Create()
     if err != nil {
