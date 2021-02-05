@@ -2,17 +2,17 @@ package command
 
 import (
     "io"
-    
+
     "github.com/bozso/gotoolbox/path"
 )
 
 type Builder interface {
-    New(string) (Command, error)
+    NewCommand(string) (Command, error)
 }
 
 type ExecutableBuilder struct {}
 
-func (_ ExecutableBuilder) New(execPath string) (c Command, err error)  {
+func (_ ExecutableBuilder) NewCommand(execPath string) (c Command, err error)  {
     c = New(NewExecutable(execPath))
     return
 }
@@ -26,13 +26,13 @@ func NewPathCheckedBuilder(b Builder) (p PathCheckedBuilder) {
     return
 }
 
-func (p PathCheckedBuilder) New(execPath string) (c Command, err error) {
+func (p PathCheckedBuilder) NewCommand(execPath string) (c Command, err error) {
     vf, err := path.New(execPath).ToValidFile()
-    
+
     if err != nil {
         return
     }
-    
+
     c, err = p.builder.New(vf.String())
     return
 }
@@ -46,7 +46,7 @@ func NewDebugBuilder(w io.Writer) (d DebugBuilder) {
     return
 }
 
-func (d DebugBuilder) New(execPath string) (c Command, err error) {
+func (d DebugBuilder) NewCommand(execPath string) (c Command, err error) {
     c = New(NewDebug(d.writer, execPath))
     return
 }

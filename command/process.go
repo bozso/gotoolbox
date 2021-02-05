@@ -8,17 +8,11 @@ import (
 )
 
 /*
-A simple wrapper around a command, handling an executable binary to be
-started and used as process and handled by another struct.
+ProcessCommand is a wrapper around a path to a valid executable file. It can
+be used to start up a process with a set of arguments.
 */
-type Process struct {
-    process *exec.Cmd
-}
-
-func NewProcess(exec *exec.Cmd) (p Process) {
-    return Process {
-        process: exec,
-    }
+type ProcessCommand struct {
+    command path.ValidFile
 }
 
 
@@ -26,8 +20,8 @@ func NewProcess(exec *exec.Cmd) (p Process) {
 A wrapper around a process that pipes input to the started process,
 handles output and errors returned by the process.
 */
-type StartedProcess struct {
-    Process
+type Process struct {
+    command *exec.Cmd
     Stderr io.ReadCloser
     Stdout io.ReadCloser
     Stdin  io.WriteCloser
@@ -36,24 +30,26 @@ type StartedProcess struct {
 /*
 Start a process and setup it's pipes.
  */
-func (p Process) Start() (s StartedProcess, err error) {
-    if s.Stderr, err = p.process.StderrPipe(); err != nil {
+func (pc ProcessCommand) Start(args ...string) (p Process, err error) {
+    cmd := exec.Command(pc.command, args...)
+
+    if s.Stderr, err = cmd.StderrPipe(); err != nil {
         return
     }
 
-    if s.Stdout, err = p.process.StdoutPipe(); err != nil {
+    if s.Stdout, err = cmd.StdoutPipe(); err != nil {
         return
     }
 
-    if s.Stdin, err = p.process.StdinPipe(); err != nil {
+    if s.Stdin, err = cmd.StdinPipe(); err != nil {
         return
     }
 
-    if err = p.process.Start(); err != nil {
+    if err = cmd.Start(); err != nil {
         return
     }
 
-    s.Process = p
+    s.command = cmd
     return
 }
 
@@ -61,15 +57,15 @@ func (p Process) Start() (s StartedProcess, err error) {
 Send data to the started process. After writing to the stdin pipe,
 the function reads from the stderr and reports any errors.
  */
-func (s *StartedProcess) Write(b []byte) (n int, err error) {
-    if n, err = s.Stdin.Write(b); err != nil {
+func (p *Process) Write(b []byte) (n int, err error) {
+    if n, err = p.Stdin.Write(b); err != nil {
         return
     }
-    
-    out, err := ioutil.ReadAll(s.Stderr)
+
+    out, err := ioutil.ReadAll(p.Stderr)
     if err != nil {
         err = Error{
-            Exec: s.process.String(),
+            Exec: p.process.String(),
             Message: out,
             err: err,
         }

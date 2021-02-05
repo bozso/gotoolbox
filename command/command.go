@@ -22,21 +22,21 @@ func New(caller Caller) (c Command) {
 
 func (c Command) call(args []fmt.Stringer) (b []byte, err error) {
     s := make([]string, len(args))
-    
+
     for ii, arg := range args {
         s[ii] = arg.String()
     }
-    
+
     return c.Caller.Call(s)
 }
 
 func (c Command) Call(args ...interface{}) (b []byte, err error) {
     s := make([]string, len(args))
-    
+
     for ii, arg := range args {
         s[ii] = fmt.Sprint(arg)
     }
-    
+
     return c.Caller.Call(s)
 }
 
@@ -52,7 +52,7 @@ func NewExecutable(cmd string) (e Executable) {
 func (e Executable) Call(args []string) (b []byte, err error) {
     cmd := exec.Command(e.cmd, args...)
     b, err = cmd.CombinedOutput()
-    
+
     if err != nil {
         err = Fail{cmd:e.cmd, out:b, args:args, err:err}
         return
@@ -87,7 +87,7 @@ type Fail struct {
 
 func (f Fail) Error() string {
     const errorMessage = "Command '%s %s' failed! Error: '%s'\nOutput of command is: %s"
-    
+
     return fmt.Sprintf(errorMessage,
         f.cmd, strings.Join(f.args, " "), f.err, f.out)
 }

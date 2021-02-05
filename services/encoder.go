@@ -7,8 +7,7 @@ import (
     "net/http"
     "encoding/base32"
     "encoding/base64"
-    
-    
+
     "github.com/bozso/gotoolbox/enum"
     "github.com/bozso/gotoolbox/doc"
     "github.com/bozso/gotoolbox/hash"
