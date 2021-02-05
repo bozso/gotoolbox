@@ -5,6 +5,8 @@ import (
     "io"
     "io/ioutil"
     "os/exec"
+
+    "github.com/bozso/gotoolbox/path"
 )
 
 /*
@@ -31,17 +33,17 @@ type Process struct {
 Start a process and setup it's pipes.
  */
 func (pc ProcessCommand) Start(args ...string) (p Process, err error) {
-    cmd := exec.Command(pc.command, args...)
+    cmd := exec.Command(pc.command.String(), args...)
 
-    if s.Stderr, err = cmd.StderrPipe(); err != nil {
+    if p.Stderr, err = cmd.StderrPipe(); err != nil {
         return
     }
 
-    if s.Stdout, err = cmd.StdoutPipe(); err != nil {
+    if p.Stdout, err = cmd.StdoutPipe(); err != nil {
         return
     }
 
-    if s.Stdin, err = cmd.StdinPipe(); err != nil {
+    if p.Stdin, err = cmd.StdinPipe(); err != nil {
         return
     }
 
@@ -49,7 +51,7 @@ func (pc ProcessCommand) Start(args ...string) (p Process, err error) {
         return
     }
 
-    s.command = cmd
+    p.command = cmd
     return
 }
 
@@ -65,7 +67,7 @@ func (p *Process) Write(b []byte) (n int, err error) {
     out, err := ioutil.ReadAll(p.Stderr)
     if err != nil {
         err = Error{
-            Exec: p.process.String(),
+            Exec: p.command.String(),
             Message: out,
             err: err,
         }
@@ -74,8 +76,8 @@ func (p *Process) Write(b []byte) (n int, err error) {
 }
 
 // Waits for the process to close.
-func (s StartedProcess) Wait() (err error) {
-    return s.process.Wait()
+func (p Process) Wait() (err error) {
+    return p.command.Wait()
 }
 
 /*
