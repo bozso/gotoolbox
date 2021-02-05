@@ -7,21 +7,21 @@ import (
 )
 
 type Creator interface {
-    Create(name string, args ...string) *exec.Cmd
+    Create(name string, args ...string) (*exec.Cmd, error)
 }
 
 type DefaultCreator struct {}
 
-func (_ DefaultCreator) Create(name string, args ...string) (cmd *exec.Cmd) {
-    return exec.Command(name, args...)
+func (_ DefaultCreator) NewCmd(name string, args ...string) (c *exec.Cmd, err error) {
+    return exec.Command(name, args...), nil
 }
 
 type CreateWithContext struct {
     ctx context.Context
 }
 
-func (c CreateWithContext) CreateCmd(name string, args ...string) (cmd *exec.Cmd) {
-    return exec.CommandContext(c.ctx, name, args...)
+func (cw CreateWithContext) NewCmd(name string, args ...string) (c *exec.Cmd, err error) {
+    return exec.CommandContext(cw.ctx, name, args...), nil
 }
 
 func WithContext(ctx context.Context) (c CreateWithContext) {
@@ -41,7 +41,6 @@ func (c Configures) ConfigureCommand(cmd *exec.Cmd) {
         conf.ConfigureCommand(cmd)
     }
 }
-
 
 type FrozenArguments struct {
     creator Creator
