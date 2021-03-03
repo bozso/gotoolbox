@@ -12,6 +12,11 @@ type Valid struct {
     Path
 }
 
+func (v *Valid) FromPath(p Pather) (err error) {
+    *v, err = p.AsPath().ToValid()
+    return
+}
+
 func (v *Valid) Set(s string) (err error) {
     const name errors.NotEmpty = "valid path"
 

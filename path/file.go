@@ -37,6 +37,17 @@ type ValidFile struct {
     Valid
 }
 
+func (v *ValidFile) FromPath(p Pather) (err error) {
+    *v, err = p.AsPath().ToValidFile()
+    return
+}
+
+type ValidFiles []ValidFile
+
+func (v ValidFiles) GetFrom(ii int) (f From) {
+    return &v[ii]
+}
+
 /*
 Use manages the `os.File` resource inside it's body allowing a
 a clousure or plain function acces to it.
