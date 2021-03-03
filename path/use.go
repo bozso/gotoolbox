@@ -104,7 +104,7 @@ func (ce CloseError) Error() (s string) {
 }
 
 func closeWrap(err error, c io.Closer) (Err error) {
-    if cerr := c.Close(); err != nil {
+    if err := c.Close(); err != nil {
         err = CloseError{ err: err }
     }
 

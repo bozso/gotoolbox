@@ -36,7 +36,7 @@ type FiberUrlParams struct {
     ctx *fiber.Ctx
 }
 
-func (f FiberUrlParams) GetParam(key string) (value string) {
+func (f FiberQueryParams) GetParam(key string) (value string) {
     value = f.ctx.Query(key)
     return
 }

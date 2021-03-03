@@ -1,6 +1,6 @@
 module github.com/bozso/gotoolbox
 
-go 1.15
+go 1.14
 
 require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
