@@ -18,7 +18,12 @@ func NewHtmlEncoder(enc Encoder) (h HtmlEncoder) {
 }
 
 func (h HtmlEncoder) EncodeFile(vf path.ValidFile) (s string, err error) {
-    ext := vf.Extension()[1:]
+    ext := vf.Extension()
+    if len(ext) == 0 {
+        err = fmt.Errorf("extension for file '%s' has zero length", vf)
+    }
+
+    ext = ext[1:]
 
     extType, err := ExtensionToType(string(ext))
     if err != nil {
