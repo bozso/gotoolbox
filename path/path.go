@@ -104,11 +104,10 @@ func (p Path) Len() int {
 
 func (p Path) Extension() (ext Extension) {
     ex := pa.Ext(p.String())
-
-    if len(ex) > 1 {
-        ex = ex[1:]
-    }
-    return Extension(ext)
+    fmt.Println(ex)
+    ex = strings.TrimLeft(ex, ".")
+    fmt.Println(ex)
+    return Extension(ex)
 }
 
 func (p Path) NoExtension() (l Like) {
