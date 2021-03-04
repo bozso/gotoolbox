@@ -1,7 +1,6 @@
 package command
 
 import (
-    "fmt"
     "os/exec"
 
     "github.com/bozso/gotoolbox/environment"
