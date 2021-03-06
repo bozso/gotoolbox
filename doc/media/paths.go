@@ -3,11 +3,11 @@ package media
 import (
     "github.com/bozso/gotoolbox/errors"
     "github.com/bozso/gotoolbox/path"
-    "github.com/bozso/gotoolbox/doc/result"
+    "github.com/bozso/gotoolbox/doc"
 )
 
 type Paths struct {
-    result.Status
+    doc.Status
     content []path.ValidFile
 }
 
@@ -24,7 +24,7 @@ func (p Paths) Iter() []path.ValidFile {
     return p.content
 }
 
-func (p Paths) Index(ii int) (r Result) {
+func (p Paths) Index(ii int) (r doc.Result) {
     if !p.IsValid() {
         r.Status = p.Status
         return
@@ -32,13 +32,13 @@ func (p Paths) Index(ii int) (r Result) {
 
     if err := p.Len().IsOutOfBounds(ii); err != nil {
         r.Status = result.Error(err)
-        return 
+        return
     }
 
     return New(p.content[ii])
 }
 
-func (p Paths) First() (r Result) {
+func (p Paths) First() (r doc.Result) {
     if !p.IsValid() {
         r.Status = p.Status
         return
@@ -47,7 +47,7 @@ func (p Paths) First() (r Result) {
     return New(p.content[0])
 }
 
-func (p Paths) Last() (r Result) {
+func (p Paths) Last() (r doc.Result) {
     if !p.IsValid() {
         r.Status = p.Status
         return

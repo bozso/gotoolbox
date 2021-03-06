@@ -2,11 +2,11 @@ package media
 
 import (
     "github.com/bozso/gotoolbox/path"
-    "github.com/bozso/gotoolbox/doc/result"
+    "github.com/bozso/gotoolbox/doc"
 )
 
 type Result struct {
-    result.Status
+    doc.Status
     Media
 }
 

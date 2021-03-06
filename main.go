@@ -120,6 +120,8 @@ func main() {
     c.AddAction("service", "start services",
         &Service{})
 
+    c.AddAction("mage", "run a go magefile", &cmd.Mage{})
+
     err := c.Run()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error: %s\n", err)
