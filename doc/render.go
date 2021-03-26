@@ -22,10 +22,10 @@ func (r Render) Handle(ctx *fasthttp.RequestCtx) (err error) {
     if err != nil {
         return
     }
-    
+
     buf := r.pool.Get()
     defer r.pool.Put(buf)
-    
+
     err = view.Execute(buf, nil, r.d)
     if err != nil {
         return

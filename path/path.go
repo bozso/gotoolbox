@@ -104,9 +104,7 @@ func (p Path) Len() int {
 
 func (p Path) Extension() (ext Extension) {
     ex := pa.Ext(p.String())
-    fmt.Println(ex)
     ex = strings.TrimLeft(ex, ".")
-    fmt.Println(ex)
     return Extension(ex)
 }
 

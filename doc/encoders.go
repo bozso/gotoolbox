@@ -3,7 +3,7 @@ package doc
 import (
     "bytes"
     "io"
-    
+
     "github.com/bozso/gotoolbox/path"
 )
 
@@ -23,8 +23,7 @@ func EncodeFile(e Encoder, vf path.ValidFile) (b []byte, err error) {
         return
     }
     defer r.Close()
-    
-    
+
     b, err = EncodeTo(e, r)
     return
 }
@@ -32,15 +31,14 @@ func EncodeFile(e Encoder, vf path.ValidFile) (b []byte, err error) {
 func EncodeTo(e Encoder, r io.Reader) (b []byte, err error) {
     var buf bytes.Buffer
     n, err := io.Copy(&buf, r)
-    
+
     if err != nil {
         return
     }
-    
-    
+
     b = make([]byte, e.EncodedLen(int(n)))
     e.Encode(b, buf.Bytes())
-    return    
+    return
 }
 
 var noOpEncoder NoEncode
