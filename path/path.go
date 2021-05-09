@@ -1,255 +1,253 @@
 package path
 
 import (
-    "fmt"
-    "hash"
-    "os"
-    "strings"
-    "bytes"
-    "path/filepath"
-    "errors"
-    pa "path"
+	"bytes"
+	"errors"
+	"fmt"
+	"hash"
+	"os"
+	pa "path"
+	"path/filepath"
+	"strings"
 
-    gerrors "github.com/bozso/gotoolbox/errors"
+	gerrors "github.com/bozso/gotoolbox/errors"
 )
 
 type Pather interface {
-    AsPath() Path
+	AsPath() Path
 }
 
 type Path struct {
-    s string
+	s string
 }
 
 func New(p string) Path {
-    return Path{p}
+	return Path{p}
 }
 
 func (p Path) Into(f From) (err error) {
-    return f.FromPath(p)
+	return f.FromPath(p)
 }
 
 func (p *Path) Set(s string) (err error) {
-    *p = New(s)
-    return
+	*p = New(s)
+	return
 }
 
 /*
  * Make all structs that embedd Path trivially convertable back to Path.
  */
 func (p Path) AsPath() (rp Path) {
-    return p
+	return p
 }
 
 func (p Path) Hash(h hash.Hash) {
-    fmt.Fprintf(h, "%s", p)
+	fmt.Fprintf(h, "%s", p)
 }
 
 func Joined(args ...string) Path {
-    return Path{filepath.Join(args...)}
+	return Path{filepath.Join(args...)}
 }
 
 func (p Path) Join(args ...string) (l Like) {
-    ss := []string{p.s}
+	ss := []string{p.s}
 
-    return Joined(append(ss, args...)...)
+	return Joined(append(ss, args...)...)
 }
 
 func (p Path) Glob() (v []Valid, err error) {
-    paths, err := filepath.Glob(p.GetPath())
-    if err != nil {
-        return
-    }
+	paths, err := filepath.Glob(p.GetPath())
+	if err != nil {
+		return
+	}
 
-    v = make([]Valid, len(paths))
+	v = make([]Valid, len(paths))
 
-    for ii, _ := range paths {
-        v[ii].Path = New(paths[ii])
-    }
+	for ii := range paths {
+		v[ii].Path = New(paths[ii])
+	}
 
-    return
+	return
 }
 
 func (p Path) GetPath() string {
-    return p.s
+	return p.s
 }
 
 func (p Path) String() string {
-    return p.GetPath()
+	return p.GetPath()
 }
 
 func (p Path) Abs() (l Like, err error) {
-    s, err := filepath.Abs(p.String())
+	s, err := filepath.Abs(p.String())
 
-    if err != nil {
-        err = p.Fail(OpCreateAbs, err)
-    }
-    l = New(s)
+	if err != nil {
+		err = p.Fail(OpCreateAbs, err)
+	}
+	l = New(s)
 
-    return
+	return
 }
 
 func (p Path) AddExtension(ext string) (l Like) {
-    return New(fmt.Sprintf("%s.%s", p.GetPath(), ext))
+	return New(fmt.Sprintf("%s.%s", p.GetPath(), ext))
 }
 
-
 func (p Path) Base() (l Like) {
-    return New(filepath.Base(p.String()))
+	return New(filepath.Base(p.String()))
 }
 
 func (p Path) Len() int {
-    return len(p.String())
+	return len(p.String())
 }
 
 func (p Path) Extension() (ext Extension) {
-    ex := pa.Ext(p.String())
-    ex = strings.TrimLeft(ex, ".")
-    return Extension(ex)
+	ex := pa.Ext(p.String())
+	ex = strings.TrimLeft(ex, ".")
+	return Extension(ex)
 }
 
 func (p Path) NoExtension() (l Like) {
-    s := p.String()
+	s := p.String()
 
-    return Path{strings.TrimSuffix(s, string(p.Extension()))}
+	return Path{strings.TrimSuffix(s, string(p.Extension()))}
 }
 
 func (p Path) Dir() (pp Path) {
-    return New(filepath.Dir(p.GetPath()))
+	return New(filepath.Dir(p.GetPath()))
 }
 
 func (p Path) Create() (of *os.File, err error) {
-    of, err = os.Create(p.String())
+	of, err = os.Create(p.String())
 
-    if err != nil {
-        err = p.Fail(OpCreate, err)
-    }
+	if err != nil {
+		err = p.Fail(OpCreate, err)
+	}
 
-    return
+	return
 }
 
 func (p Path) Touch() (err error) {
-    f, err := p.Create()
-    if err != nil {
-        return
-    }
-    err = f.Close()
-    return
+	f, err := p.Create()
+	if err != nil {
+		return
+	}
+	err = f.Close()
+	return
 }
 
 func (p Path) Exists() (b bool, err error) {
-    b, s := false, p.s
-    _, err = os.Stat(s)
+	b, s := false, p.s
+	_, err = os.Stat(s)
 
-    if err == nil {
-        b = true
-        return
-    }
+	if err == nil {
+		b = true
+		return
+	}
 
-    if os.IsNotExist(err) {
-        err = nil
-        return
-    }
+	if os.IsNotExist(err) {
+		err = nil
+		return
+	}
 
-    err = p.Fail(OpExists, err)
-    return
+	err = p.Fail(OpExists, err)
+	return
 }
 
 type NotExists string
 
 func (e NotExists) Error() (s string) {
-    return fmt.Sprintf("path '%s' does not exist", string(e))
+	return fmt.Sprintf("path '%s' does not exist", string(e))
 }
 
 const DoesNotExist NotExists = ""
 
 func (p Path) MustExist() (err error) {
-    b, err := p.Exists()
-    if err != nil {
-        return
-    }
+	b, err := p.Exists()
+	if err != nil {
+		return
+	}
 
-    if !b {
-        err = NotExists(p.String())
-    }
+	if !b {
+		err = NotExists(p.String())
+	}
 
-    return
+	return
 }
 
 func (p Path) IfExists() (optPath *Valid, err error) {
-    v, err := p.ToValid()
+	v, err := p.ToValid()
 
-    if err == nil {
-        optPath = &v
-    // file does not exist, optPath is nil, no error is raised
-    } else if errors.Is(err, DoesNotExist) {
-        err = nil
-    }
+	if err == nil {
+		optPath = &v
+		// file does not exist, optPath is nil, no error is raised
+	} else if errors.Is(err, DoesNotExist) {
+		err = nil
+	}
 
-    return
+	return
 }
 
 func (p Path) ToValid() (vp Valid, err error) {
-    if err = p.MustExist(); err != nil {
-        return
-    }
+	if err = p.MustExist(); err != nil {
+		return
+	}
 
-    vp.Path = p
-    return
+	vp.Path = p
+	return
 }
 
 func (p Path) MarshalJSON() (b []byte, err error) {
-    return []byte(fmt.Sprintf("\"%s\"", p.GetPath())), nil
+	return []byte(fmt.Sprintf("\"%s\"", p.GetPath())), nil
 }
 
 func trim(b []byte) (s string) {
-    return string(bytes.Trim(b, "\""))
+	return string(bytes.Trim(b, "\""))
 }
 
 func (p *Path) UnmarshalJSON(b []byte) (err error) {
-    p.s = trim(b)
-    return nil
+	p.s = trim(b)
+	return nil
 }
 
 type ByModTime []Valid
 
-func (b ByModTime) Len() int           { return len(b) }
-func (b ByModTime) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-
+func (b ByModTime) Len() int      { return len(b) }
+func (b ByModTime) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 func (b ByModTime) Less(i, j int) bool {
-    const check gerrors.Asserter = "failed to retreive modification time" 
+	const check gerrors.Asserter = "failed to retreive modification time"
 
-    v1 := b[i]
-    t1, err := v1.ModTime()
-    check.Checkf(err, "for path '%s'", v1)
+	v1 := b[i]
+	t1, err := v1.ModTime()
+	check.Checkf(err, "for path '%s'", v1)
 
-    v2 := b[j]
-    t2, err := v2.ModTime()
-    check.Checkf(err, "for path '%s'", v2)
+	v2 := b[j]
+	t2, err := v2.ModTime()
+	check.Checkf(err, "for path '%s'", v2)
 
-    return t1.Before(t2)
+	return t1.Before(t2)
 }
 
 type Creatable interface {
-    SetPath(Path)
-    Create(Path) error
+	SetPath(Path)
+	Create(Path) error
 }
 
 func CreateIf(create Creatable, s string) (err error) {
-    p := New(s)
+	p := New(s)
 
-    exists, err := p.Exists()
-    if err != nil {
-        return
-    }
+	exists, err := p.Exists()
+	if err != nil {
+		return
+	}
 
-    if !exists {
-        if err = create.Create(p); err != nil {
-            return
-        }
-    }
+	if !exists {
+		if err = create.Create(p); err != nil {
+			return
+		}
+	}
 
-    create.SetPath(p)
-    return
+	create.SetPath(p)
+	return
 }
