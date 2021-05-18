@@ -1,27 +1,25 @@
 package parsing
 
-import (
-
-)
+import ()
 
 type Parser struct {
-    getter Getter
+	getter Getter
 }
 
 func New(g Getter) (p Parser) {
-    return Parser {
-        getter: g,
-    }
+	return Parser{
+		getter: g,
+	}
 }
 
 func (p Parser) Get(key string) (s string, b bool) {
-    return Get(p.getter, key)
+	return Get(p.getter, key)
 }
 
 func (p Parser) MustGet(key string) (s string, err error) {
-    return MustGet(p.getter, key)
+	return MustGet(p.getter, key)
 }
 
 func (p Parser) Int(key string) (ii int, err error) {
-    return GetInt(p.getter, key)
+	return GetInt(p.getter, key)
 }

@@ -20,47 +20,6 @@ type Hashable interface {
 	Hash(stdHash.Hash)
 }
 
-type Float64 struct {
-	mantissa uint64
-	exponent int16
-	sign     int8
-}
-
-func (f Float64) Hash(h stdHash.Hash) {
-	binary.Write(h, binary.LittleEndian, f.mantissa)
-	binary.Write(h, binary.LittleEndian, f.exponent)
-	binary.Write(h, binary.LittleEndian, f.sign)
-}
-
-func HashFloat64(val float64, h stdHash.Hash) {
-	NewFloat64(val).Hash(h)
-}
-
-func NewFloat64(val float64) (h Float64) {
-	bits := math.Float64bits(val)
-	sign := int8(-1)
-
-	if bits>>63 == 0 {
-		sign = int8(1)
-	}
-
-	exponent := int16((bits >> 52) & 0x7ff)
-
-	mantissa := (bits & 0xfffffffffffff) | 0x10000000000000
-
-	if exponent == 0 {
-		mantissa = (bits & 0xfffffffffffff) << 1
-	}
-
-	exponent -= 1023 + 52
-
-	return Float64{
-		exponent: exponent,
-		sign:     sign,
-		mantissa: mantissa,
-	}
-}
-
 type Hasher struct {
 	hasher Hash
 }
