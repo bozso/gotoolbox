@@ -1,9 +1,7 @@
 package hash
 
 import (
-	"encoding/binary"
 	stdHash "hash"
-	"math"
 )
 
 // alias to the standard library Hash interface
