@@ -63,11 +63,7 @@ func (p Path) Glob() (v []Valid, err error) {
 
 	v = make([]Valid, len(paths))
 
-<<<<<<< HEAD
-	for ii, _ := range paths {
-=======
 	for ii := range paths {
->>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 		v[ii].Path = New(paths[ii])
 	}
 
