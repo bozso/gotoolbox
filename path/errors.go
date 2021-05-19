@@ -2,8 +2,11 @@ package path
 
 import (
 	"fmt"
+<<<<<<< HEAD
 
 	"github.com/bozso/gotoolbox/errors"
+=======
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 )
 
 var Error pathError
@@ -22,12 +25,20 @@ type pathError struct {
 	err  error
 }
 
+<<<<<<< HEAD
 func (e pathError) Unwrap() error {
+=======
+func (e pathError) Unwrap() (err error) {
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 	return e.err
 }
 
 func (e pathError) Error() string {
+<<<<<<< HEAD
 	return errors.WrapFmt(e.Unwrap(), "%s", e.efmt.Fmt(e.p)).Error()
+=======
+	return e.efmt.Fmt(e.p)
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 }
 
 type operation int

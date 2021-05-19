@@ -1,130 +1,133 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "strings"
-    "net/http"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
 
-    "github.com/gorilla/mux"
-    "github.com/gorilla/rpc/v2"
-    "github.com/gorilla/rpc/v2/json2"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/rpc/v2"
+	"github.com/gorilla/rpc/v2/json2"
 
-    tth "github.com/buildkite/terminal-to-html"
+	tth "github.com/buildkite/terminal-to-html"
 
-    "github.com/bozso/gotoolbox/doc"
-    "github.com/bozso/gotoolbox/cli"
-    "github.com/bozso/gotoolbox/cmd"
-    "github.com/bozso/gotoolbox/command"
-    "github.com/bozso/gotoolbox/cli/stream"
-    "github.com/bozso/gotoolbox/services"
-    "github.com/bozso/gotoolbox/repository"
+	"github.com/bozso/gotoolbox/cli"
+	"github.com/bozso/gotoolbox/cli/stream"
+	"github.com/bozso/gotoolbox/cmd"
+	"github.com/bozso/gotoolbox/command"
+	"github.com/bozso/gotoolbox/doc"
+	"github.com/bozso/gotoolbox/repository"
+	"github.com/bozso/gotoolbox/services"
 )
 
 type Repositories struct {
-    config repository.Config
-    vcs string
-    command string
-    intoHtml bool
-    out stream.Out
+	config   repository.Config
+	vcs      string
+	command  string
+	intoHtml bool
+	out      stream.Out
+}
+
+func (r *Repositories) Asd() {
 }
 
 func (r *Repositories) SetCli(c *cli.Cli) {
-    c.Var(&r.config, "config", "json configuration of repository list")
-    c.BoolVar(&r.intoHtml, "html", false,
-        "whether to convert output to html")
-    c.StringVar(&r.vcs, "vcs", "git",
-        "type of the version control system to use")
-    c.StringVar(&r.command, "command", "status",
-        "which type of command to use")
-    c.Var(&r.out, "out", "where to write the output")
+	c.Var(&r.config, "config", "json configuration of repository list")
+	c.BoolVar(&r.intoHtml, "html", false,
+		"whether to convert output to html")
+	c.StringVar(&r.vcs, "vcs", "git",
+		"type of the version control system to use")
+	c.StringVar(&r.command, "command", "status",
+		"which type of command to use")
+	c.Var(&r.out, "out", "where to write the output")
 }
 
 func (r Repositories) Run() (err error) {
-    var vcs command.VCS
+	var vcs command.VCS
 
-    switch strings.ToLower(r.vcs) {
-    case "git":
-        vcs = command.DefaultGit()
-    default:
-        err = fmt.Errorf("unknown version control system '%s'", r.vcs)
-        return
-    }
+	switch strings.ToLower(r.vcs) {
+	case "git":
+		vcs = command.DefaultGit()
+	default:
+		err = fmt.Errorf("unknown version control system '%s'", r.vcs)
+		return
+	}
 
-    m := r.config.IntoManager(vcs)
+	m := r.config.IntoManager(vcs)
 
-    var out []byte
-    switch strings.ToLower(r.command) {
-    case "status":
-        out, err = m.Status()
-    default:
-        err = fmt.Errorf("unknown manager command '%s'", r.command)
-    }
+	var out []byte
+	switch strings.ToLower(r.command) {
+	case "status":
+		out, err = m.Status()
+	default:
+		err = fmt.Errorf("unknown manager command '%s'", r.command)
+	}
 
-    if err != nil {
-        return
-    }
+	if err != nil {
+		return
+	}
 
-    if r.intoHtml {
-        out = tth.Render(out)
-    }
+	if r.intoHtml {
+		out = tth.Render(out)
+	}
 
-    _, err = r.out.Write(out)
+	_, err = r.out.Write(out)
 
-    return
+	return
 }
 
 type Service struct {
-    port doc.Port
+	port doc.Port
 }
 
 func (s *Service) SetCli(c *cli.Cli) {
-    s.port.SetCli(c)
-    return
+	s.port.SetCli(c)
+	return
 }
 
 func (sv Service) Run() (err error) {
-    s := rpc.NewServer()
-    s.RegisterCodec(json2.NewCodec(), "application/json")
-    s.RegisterCodec(json2.NewCodec(), "application/json;charset=UTF-8")
+	s := rpc.NewServer()
+	s.RegisterCodec(json2.NewCodec(), "application/json")
+	s.RegisterCodec(json2.NewCodec(), "application/json;charset=UTF-8")
 
-    err = s.RegisterService(services.EncoderService{}, "")
+	err = s.RegisterService(services.EncoderService{}, "")
 
-    r := mux.NewRouter()
-    r.Handle("/rpc", s)
+	r := mux.NewRouter()
+	r.Handle("/rpc", s)
 
-    return http.ListenAndServe(sv.port.Localhost(), r)
+	return http.ListenAndServe(sv.port.Localhost(), r)
 }
 
 func main() {
-    c := cli.New("toolbox", "Useful functions.")
+	c := cli.New("toolbox", "Useful functions.")
 
-    c.AddAction("repositories",
-        "manage version control system repositories",
-        &Repositories{})
+	c.AddAction("repositories",
+		"manage version control system repositories",
+		&Repositories{})
 
-    c.AddAction("genrepos",
-        "generate configuration file for git repositories",
-        &cmd.GenRepos{})
+	c.AddAction("genrepos",
+		"generate configuration file for git repositories",
+		&cmd.GenRepos{})
 
-    c.AddAction("task",
-        "run a Taskfile.yml from any directory",
-        &Tasker{})
+	c.AddAction("task",
+		"run a Taskfile.yml from any directory",
+		&Tasker{})
 
-    c.AddAction("jet-server", "render jet templates through a web server",
-        &doc.TemplateServer{})
+	c.AddAction("jet-server", "render jet templates through a web server",
+		&doc.TemplateServer{})
 
-    c.AddAction("template", "render jet templates",
-        &doc.TemplateRender{})
+	c.AddAction("template", "render jet templates",
+		&doc.TemplateRender{})
 
-    c.AddAction("service", "start services",
-        &Service{})
+	c.AddAction("service", "start services",
+		&Service{})
 
-    c.AddAction("mage", "run a go magefile", &cmd.Mage{})
+	c.AddAction("mage", "run a go magefile", &cmd.Mage{})
 
-    err := c.Run()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-        os.Exit(1)
-    }
+	err := c.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
 }

@@ -2,7 +2,10 @@ package path
 
 import (
 	"bufio"
+<<<<<<< HEAD
 	"fmt"
+=======
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 	"io"
 )
 
@@ -97,14 +100,29 @@ type CloseError struct {
 }
 
 func (ce CloseError) Error() (s string) {
+<<<<<<< HEAD
 	return fmt.Sprintf(
 		"failed to close resource while while handling error %s", ce.err)
+=======
+	return "failed to close resource"
+}
+
+func (ce CloseError) Unwrap() (err error) {
+	return ce.err
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 }
 
 func closeWrap(err error, c io.Closer) (Err error) {
 	if err := c.Close(); err != nil {
+<<<<<<< HEAD
 		err = CloseError{err: err}
 	}
 
 	return err
+=======
+		Err = CloseError{err: err}
+	}
+
+	return Err
+>>>>>>> ee017e5a8603787d06b1d4a7f1f8a150c8268130
 }
