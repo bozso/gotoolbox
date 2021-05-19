@@ -1,7 +1,7 @@
 package path
 
 import (
-    "github.com/bozso/gotoolbox/errors"
+	"github.com/bozso/gotoolbox/errors"
 )
 
 type Glob func() ([]Valid, error)
@@ -13,63 +13,63 @@ type Filters []Filter
 type Transforms []Transform
 
 func SelectAll(_ Pather) bool {
-    return true
+	return true
 }
 
 type Filterer interface {
-    Filter(Pather) (bool, error) 
+	Filter(Pather) (bool, error)
 }
 
-type SelectDir struct {}
+type SelectDir struct{}
 
 func (_ SelectDir) Filter(p Pather) (b bool, err error) {
-    v, err := p.AsPath().ToValid()
-    if err != nil {
-        return
-    }
-    
-    b, err = v.IsDir()
-    return
-    
+	v, err := p.AsPath().ToValid()
+	if err != nil {
+		return
+	}
+
+	b, err = v.IsDir()
+	return
+
 }
 
-type SelectFile struct {}
+type SelectFile struct{}
 
 func (_ SelectFile) Filter(p Pather) (b bool, err error) {
-    v, err := p.AsPath().ToValid()
-    if err != nil {
-        return
-    }
-    
-    b, err = v.IsDir()
-    b = !b
-    return
-    
+	v, err := p.AsPath().ToValid()
+	if err != nil {
+		return
+	}
+
+	b, err = v.IsDir()
+	b = !b
+	return
+
 }
 
 type selectAll struct{}
 
 func (_ selectAll) Filter(_ Pather) (b bool, err error) {
-    return true, nil
+	return true, nil
 }
 
 var selectors = map[string]Filterer{
-    "dirs": SelectDir{},
-    "files": SelectFile{},
-    "all": selectAll{},
+	"dirs":  SelectDir{},
+	"files": SelectFile{},
+	"all":   selectAll{},
 }
 
 type FiltererPayload struct {
-    Filterer
+	Filterer
 }
 
 func (f *FiltererPayload) UnmarshalJSON(b []byte) (err error) {
-    s := trim(b)
-    var ok bool
-    f.Filterer, ok = selectors[s]
-    
-    if !ok {
-        err = errors.KeyNotFound(s)
-    }
-    return
+	s := trim(b)
+	var ok bool
+	f.Filterer, ok = selectors[s]
+
+	if !ok {
+		err = errors.KeyNotFound(s)
+	}
+	return
 }

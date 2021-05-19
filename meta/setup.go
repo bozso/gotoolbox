@@ -1,31 +1,30 @@
 package meta
 
 import (
-    "sync"
+	"sync"
 )
 
-
 type Callable interface {
-    Call() error
+	Call() error
 }
 
 type Startup struct {
-    once sync.Once
+	once sync.Once
 }
 
 type CallFunc func() error
 
 func (c CallFunc) Call() (err error) {
-    return c()
+	return c()
 }
 
 type Empty struct{}
 
 func (s *Startup) Do(call Callable) (e Empty) {
-    s.once.Do(func() {
-        if err := call.Call(); err != nil {
-            panic(err)
-        }
-    })
-    return
+	s.once.Do(func() {
+		if err := call.Call(); err != nil {
+			panic(err)
+		}
+	})
+	return
 }

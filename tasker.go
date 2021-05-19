@@ -14,11 +14,9 @@ var (
     parentDir = path.New("..")
 )
 
-type Tasker struct {
-}
+type Tasker struct {}
 
-func (t *Tasker) SetCli(c *cli.Cli) {
-}
+func (t *Tasker) SetCli(c *cli.Cli) {}
 
 func (t Tasker) Run() (err error) {
     taskFile := path.New("Taskfile.yml")

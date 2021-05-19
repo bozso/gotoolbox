@@ -1,31 +1,31 @@
 package errors
 
 import (
-    "fmt"
+	"fmt"
 )
 
 type KeyError struct {
-    key string
+	key string
 }
 
 func KeyNotFound(key string) (k KeyError) {
-    return KeyError{key}
+	return KeyError{key}
 }
 
 func (e KeyError) Error() (s string) {
-    return fmt.Sprintf("key %s not found in map", e.key)
+	return fmt.Sprintf("key %s not found in map", e.key)
 }
 
 func KeyNotFoundWith(key interface{}) (k KeyError) {
-    str, ok := key.(fmt.Stringer)
-    
-    var s string
-    
-    if ok {
-        s = str.String()
-    } else {
-        s = fmt.Sprintf("%#v", key)
-    }
-    
-    return KeyError{s}
+	str, ok := key.(fmt.Stringer)
+
+	var s string
+
+	if ok {
+		s = str.String()
+	} else {
+		s = fmt.Sprintf("%#v", key)
+	}
+
+	return KeyError{s}
 }
