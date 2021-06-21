@@ -24,6 +24,7 @@ func (g *GenRepos) SetCli(c *cli.Cli) {
 
 func (g GenRepos) Run() (err error) {
 	defer g.out.Close()
+
 	b, err := g.config.ReadAll()
 	if err != nil {
 		return
@@ -38,6 +39,7 @@ func (g GenRepos) Run() (err error) {
 	}
 
 	dirs := make([]path.Dir, 0, 10)
+
 	for _, p := range patterns.P {
 		glob, err := p.Glob()
 		if err != nil {
@@ -54,10 +56,7 @@ func (g GenRepos) Run() (err error) {
 		}
 	}
 
-	enc := json.NewEncoder(g.out)
-
-	err = enc.Encode(struct {
+	return json.NewEncoder(g.out).Encode(struct {
 		Repos []path.Dir `json:"repos"`
 	}{Repos: dirs})
-	return
 }

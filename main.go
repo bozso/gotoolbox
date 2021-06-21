@@ -29,9 +29,6 @@ type Repositories struct {
 	out      stream.Out
 }
 
-func (r *Repositories) Asd() {
-}
-
 func (r *Repositories) SetCli(c *cli.Cli) {
 	c.Var(&r.config, "config", "json configuration of repository list")
 	c.BoolVar(&r.intoHtml, "html", false,
