@@ -117,6 +117,9 @@ func main() {
 	c.AddAction("jet-server", "render jet templates through a web server",
 		&doc.TemplateServer{})
 
+	c.AddAction("jet", "render jet templates from the command line",
+		&cmd.Jet{})
+
 	c.AddAction("template", "render jet templates",
 		&doc.TemplateRender{})
 
