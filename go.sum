@@ -1,4 +1,9 @@
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
+git.sr.ht/~istvan_bozso/sedet v0.0.2/go.mod h1:cUaelxqU5McE9VUky6QaHaJR1TbJ6ojoT2tU8N9zM+Q=
+git.sr.ht/~istvan_bozso/shutil v0.0.0-20210625095928-7d6e2a67bf01 h1:1Y0ckc667eyPi1bitg3YSFVA2pzEHYWQgrLTqblhBaU=
+git.sr.ht/~istvan_bozso/shutil v0.0.0-20210625095928-7d6e2a67bf01/go.mod h1:B52lvCrHhZcHkQnhuM6uzpitS2+MpWpNfuRq6pKjeCM=
+git.sr.ht/~jlkde/goThesaurus v0.0.0-20200910195642-27bf4f5c6fe5 h1:BzL8/fvR9OseVy36eMERLSc2mbXzPM/0lrJup3lKnkw=
+git.sr.ht/~jlkde/goThesaurus v0.0.0-20200910195642-27bf4f5c6fe5/go.mod h1:iR3EfYVJm3F2D4k6r4q/jprkE+8oztaYXHf5YyVBJE0=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 h1:sR+/8Yb4slttB4vD+b9btVEnWgL3Q00OBTzVT8B9C0c=

@@ -3,6 +3,8 @@ module github.com/bozso/gotoolbox
 go 1.14
 
 require (
+	git.sr.ht/~istvan_bozso/shutil v0.0.0-20210625095928-7d6e2a67bf01
+	git.sr.ht/~jlkde/goThesaurus v0.0.0-20200910195642-27bf4f5c6fe5
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet v2.1.2+incompatible
 	github.com/bozso/emath v0.3.0

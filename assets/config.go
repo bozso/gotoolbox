@@ -1,10 +1,15 @@
 package assets
 
 import (
-	"github.com/bozso/gotoolbox/path"
+	"io/fs"
 )
 
+type ConfigPayload struct {
+	Cache  string `json:"cache"`
+	Output string `json:"output"`
+}
+
 type Config struct {
-	cache    path.Dir
-	binaries path.Dir
+	Cache  fs.FS
+	Output fs.FS
 }
