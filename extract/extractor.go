@@ -5,6 +5,10 @@ import (
 	"path/filepath"
 )
 
+type Extractor interface {
+	Extract(input, outdir string) error
+}
+
 type Creator interface {
 	CreateFs(path string) (fs.FS, error)
 }

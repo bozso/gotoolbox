@@ -13,21 +13,30 @@ type Manager struct {
 }
 
 type Task struct {
-	Url    string `json:"url"`
+	URL    string `json:"url"`
 	MoveTo string `json:"move_to,omitempty"`
+}
+
+func (m Manager) download(rawURL string) (down path.Path, err error) {
+	url, err := ParseUrl(rawURL)
+	if err != nil {
+		return
+	}
+
+	down, err = Download(m.download, url)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func (m Manager) Download(t Task) (down path.ValidFile, err error) {
 	const op = Operation("Manager.Download")
 
-	url, err := ParseUrl(t.Url)
+	m.download(t.Url)
 	if err != nil {
-		return op.Error(err)
-	}
-
-	down, err = Download(m.download, url)
-	if err != nil {
-		return op.Error(err)
+		err = op.Error(err)
 	}
 
 	return

@@ -7,7 +7,7 @@ import (
 )
 
 type Downloader interface {
-	Download(*url.URL) (path.ValidFile, error)
+	Download(*url.URL, string) error
 }
 
 func ParseUrl(raw string) (url *url.URL, err error) {
@@ -20,10 +20,10 @@ func ParseUrl(raw string) (url *url.URL, err error) {
 	return
 }
 
-func Download(d Downloader, url *url.URL) (p path.ValidFile, err error) {
+func Download(d Downloader, url *url.URL, path string) (err error) {
 	const op = Operation("downloading asset")
 
-	p, err = d.Download(url)
+	err = d.Download(url, path)
 	if err != nil {
 		err = DownloadError{
 			URL: url,
@@ -32,5 +32,4 @@ func Download(d Downloader, url *url.URL) (p path.ValidFile, err error) {
 	}
 
 	return
-
 }
