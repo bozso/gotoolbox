@@ -3,8 +3,9 @@ package cmd
 import (
 	"bufio"
 	"encoding/json"
-	"io"
+	"fmt"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/CloudyKit/jet"
@@ -13,8 +14,11 @@ import (
 )
 
 type JetConfig struct {
-	Dirs []string
+	Dirs []string               `json:"dirs,omitempty"`
+	Vars map[string]interface{} `json:"vars"`
 }
+
+var defaultDirs = []string{"."}
 
 type Jet struct {
 	configFile path.File
@@ -40,7 +44,7 @@ func (j *Jet) SetCli(c *cli.Cli) {
 }
 
 func (j Jet) Run() (err error) {
-	cfg := DefaultJetConfig
+	var cfg JetConfig
 
 	exists, err := j.configFile.Exists()
 	if err != nil {
@@ -59,35 +63,52 @@ func (j Jet) Run() (err error) {
 		}
 	}
 
-	set := jet.NewHTMLSet(cfg.Dirs...)
+	dirs := defaultDirs
+	if len(cfg.Dirs) > 0 {
+		dirs = cfg.Dirs
+	}
+
+	set := jet.NewHTMLSet(dirs...)
 
 	if err != nil {
 		return err
 	}
+
+	set.AddGlobalFunc("fmt", func(a jet.Arguments) (v reflect.Value) {
+		a.RequireNumOfArguments("fmt", 1, -1)
+		l := a.NumOfArguments()
+		args := make([]interface{}, l-1)
+
+		for ii := 1; ii < l; ii++ {
+			args[ii-1] = a.Get(ii).Interface()
+		}
+
+		return reflect.ValueOf(fmt.Sprintf(a.Get(0).String(), args...))
+	})
 
 	tpl, err := set.GetTemplate(j.template)
 	if err != nil {
 		return
 	}
 
-	var out io.Writer
-
 	switch {
 	case len(j.out) == 0 || strings.ToLower(j.out) == "stdout":
-		out = os.Stdout
+		out := os.Stdout
+		err = tpl.Execute(out, nil, cfg.Vars)
+
+		return err
 	default:
-		f, err := os.Open(j.out)
+		f, err := os.Create(j.out)
 		if err != nil {
 			return err
 		}
 
-		out = bufio.NewWriter(f)
-		defer f.Close()
+		out := bufio.NewWriter(f)
+		err = tpl.Execute(out, nil, cfg.Vars)
+
+		out.Flush()
+		f.Close()
+
+		return err
 	}
-
-	return tpl.Execute(out, nil, nil)
-}
-
-var DefaultJetConfig = JetConfig{
-	Dirs: []string{"."},
 }
