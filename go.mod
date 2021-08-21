@@ -14,6 +14,7 @@ require (
 	github.com/gofiber/fiber v1.14.6
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
+	github.com/karrick/histogram v1.3.3 // indirect
 	github.com/magefile/mage v1.11.0
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/valyala/fasthttp v1.16.0
